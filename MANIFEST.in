@@ -1,1 +1,1 @@
-include autocorns/abis/*.json
+include build/contracts/*.json
