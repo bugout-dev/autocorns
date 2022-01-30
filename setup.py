@@ -16,7 +16,7 @@ setup(
         ],
         "distribute": ["setuptools", "twine", "wheel"],
     },
-    description="Crypto Unicorns automation",
+    description="A team of Crypto Unicorn bots",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="zomglings",

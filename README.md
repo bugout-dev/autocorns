@@ -1,2 +1,4 @@
 # autocorns
-Crypto Unicorns automation
+
+A team of Crypto Unicorns bots
+
