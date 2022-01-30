@@ -1,1 +1,1 @@
-include build/contracts/*.json
+include ./build/contracts/*.json
