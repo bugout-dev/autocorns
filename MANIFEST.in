@@ -1,1 +1,1 @@
-include ./build/contracts/*.json
+include ./autocorns/build/contracts/*.json
