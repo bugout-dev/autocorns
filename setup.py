@@ -8,6 +8,8 @@ setup(
     name="autocorns",
     version="0.0.2",
     packages=find_packages(),
+    package_data={"autocorns": ["build/contracts/*.json"]}
+    include_package_data=True,
     install_requires=["eth-brownie", "tqdm", "web3"],
     extras_require={
         "dev": [
@@ -21,11 +23,10 @@ setup(
     long_description_content_type="text/markdown",
     author="zomglings",
     author_email="nkashy1@gmail.com",
+    url="https://github.com/zomglings/autocorns",
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Programming Language :: Python",
-        "License :: OSI Approved :: Apache Software License",
-        "Topic :: Software Development :: Libraries",
     ],
     python_requires=">=3.6",
     entry_points={
@@ -33,5 +34,4 @@ setup(
             "autocorns=autocorns.cli:main",
         ]
     },
-    include_package_data=True,
 )
