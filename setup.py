@@ -6,7 +6,7 @@ with open("README.md") as ifp:
 
 setup(
     name="autocorns",
-    version="0.0.3",
+    version="0.0.4",
     packages=find_packages(),
     package_data={"autocorns": ["build/contracts/*.json"]},
     include_package_data=True,
