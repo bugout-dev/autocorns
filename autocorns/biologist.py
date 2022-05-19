@@ -369,7 +369,7 @@ def handle_sob(args: argparse.Namespace) -> None:
         if event["event_type"] == "breeding":
             event["milestone_1"] = 50
             breeding_events.append(event)
-        elif event["event_type"] == "hatcingEggs":
+        elif event["event_type"] == "hatchingEggs":
             metadata = token_metadata_index[event["token"]]
             event["milestone_1"] = 0
             if metadata["is_mythic"]:
