@@ -378,10 +378,12 @@ def handle_moonstream_events(args: argparse.Namespace) -> None:
     data_url = response_body["url"]
 
     keep_going = True
+    num_retries = 0
 
     print(f"If-Modified-Since: {if_modified_since}")
     while keep_going:
         time.sleep(args.interval)
+        num_retries += 1
         data_response = requests.get(
             data_url, headers={"If-Modified-Since": if_modified_since}
         )
@@ -392,6 +394,8 @@ def handle_moonstream_events(args: argparse.Namespace) -> None:
         if data_response.status_code == 200:
             json.dump(data_response.json(), args.outfile)
             keep_going = False
+        if keep_going and args.max_retries > 0:
+            keep_going = num_retries <= args.max_retries
 
 
 def handle_sob(args: argparse.Namespace) -> None:
@@ -637,6 +641,12 @@ def generate_cli() -> argparse.ArgumentParser:
     )
     moonstream_events_parser.add_argument(
         "--interval", type=float, default=2.0, help="Polling interval for updated data"
+    )
+    moonstream_events_parser.add_argument(
+        "--max-retries",
+        type=int,
+        default=0,
+        help="Maximum number of retries for data (0 means unlimited).",
     )
     moonstream_events_parser.add_argument(
         "-o",
