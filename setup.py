@@ -6,11 +6,11 @@ with open("README.md") as ifp:
 
 setup(
     name="autocorns",
-    version="0.0.5",
+    version="0.0.6",
     packages=find_packages(),
     package_data={"autocorns": ["build/contracts/*.json"]},
     include_package_data=True,
-    install_requires=["eth-brownie", "tqdm", "web3"],
+    install_requires=["eth-brownie", "requests", "tqdm", "web3"],
     extras_require={
         "dev": [
             "black",
