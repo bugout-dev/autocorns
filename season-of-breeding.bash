@@ -1,13 +1,5 @@
 #!/usr/bin/env bash
 
-TOTAL_SUPPLY=$1
-
-if [ -z "$TOTAL_SUPPLY" ]
-then
-    echo "Usage: $0 <total supply of unicorns>"
-    exit 1
-fi
-
 if [ -z "$BROWNIE_NETWORK" ]
 then
     echo "Set BROWNIE_NETWORK environment variable"
@@ -24,6 +16,10 @@ fi
 CU_ADDRESS=0xdC0479CC5BbA033B3e7De9F178607150B3AbCe1f
 
 set -e
+
+TOTAL_SUPPLY=$(autocorns biologist total-supply --network $BROWNIE_NETWORK --address $CU_ADDRESS)
+
+echo "Total supply: $TOTAL_SUPPLY"
 
 time autocorns biologist dnas \
     --network $BROWNIE_NETWORK \
@@ -70,5 +66,4 @@ time autocorns biologist moonstream-events \
 time autocorns biologist sob \
     --merged data/merged.json \
     --moonstream data/moonstream.json \
-    | jq . \
     >data/leaderboard.json
