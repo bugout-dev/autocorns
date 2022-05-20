@@ -13,6 +13,7 @@ from brownie.network import chain
 import requests
 from tqdm import tqdm
 
+from . import ERC721WithDiamondStorage
 from . import MetadataFacet
 from . import StatsFacet
 from eth_typing.evm import ChecksumAddress
@@ -380,6 +381,8 @@ def handle_moonstream_events(args: argparse.Namespace) -> None:
     keep_going = True
     num_retries = 0
 
+    success = False
+
     print(f"If-Modified-Since: {if_modified_since}")
     while keep_going:
         time.sleep(args.interval)
@@ -394,8 +397,12 @@ def handle_moonstream_events(args: argparse.Namespace) -> None:
         if data_response.status_code == 200:
             json.dump(data_response.json(), args.outfile)
             keep_going = False
+            success = True
         if keep_going and args.max_retries > 0:
             keep_going = num_retries <= args.max_retries
+
+    if not success:
+        raise Exception("Failed to retrieve data")
 
 
 def handle_sob(args: argparse.Namespace) -> None:
@@ -657,6 +664,10 @@ def generate_cli() -> argparse.ArgumentParser:
     )
 
     moonstream_events_parser.set_defaults(func=handle_moonstream_events)
+
+    total_supply_parser = subparsers.add_parser("total-supply")
+    ERC721WithDiamondStorage.add_default_arguments(total_supply_parser, False)
+    total_supply_parser.set_defaults(func=ERC721WithDiamondStorage.handle_total_supply)
 
     return parser
 
