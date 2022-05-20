@@ -1,15 +1,19 @@
 import argparse
 from concurrent.futures import as_completed, ThreadPoolExecutor, Future
 import csv
+import datetime
 import json
-from time import sleep
+import os
 import sys
+import time
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 from brownie import network
 from brownie.network import chain
+import requests
 from tqdm import tqdm
 
+from . import ERC721WithDiamondStorage
 from . import MetadataFacet
 from . import StatsFacet
 from eth_typing.evm import ChecksumAddress
@@ -349,6 +353,58 @@ def handle_merge(args: argparse.Namespace) -> None:
             print(json.dumps(result), file=sys.stdout)
 
 
+def handle_moonstream_events(args: argparse.Namespace) -> None:
+    moonstream_access_token = os.environ.get("MOONSTREAM_ACCESS_TOKEN")
+    if moonstream_access_token is None:
+        raise ValueError("Please set the MOONSTREAM_ACCESS_TOKEN environment variable")
+
+    api_url = args.api.rstrip("/")
+    request_url = f"{api_url}/queries/{args.query_name}/update_data"
+    headers = {
+        "Authorization": f"Bearer {moonstream_access_token}",
+        "Content-Type": "application/json",
+    }
+    # Assume our clock is not drifting too much from AWS clocks.
+    if_modified_since_datetime = datetime.datetime.utcnow()
+    if_modified_since = if_modified_since_datetime.strftime("%a, %d %b %Y %H:%M:%S GMT")
+    end_timestamp = int(time.time())
+
+    request_body = {
+        "params": {"start_timestamp": args.start, "end_timestamp": end_timestamp}
+    }
+
+    response = requests.post(request_url, json=request_body, headers=headers)
+    response.raise_for_status()
+    response_body = response.json()
+    data_url = response_body["url"]
+
+    keep_going = True
+    num_retries = 0
+
+    success = False
+
+    print(f"If-Modified-Since: {if_modified_since}")
+    while keep_going:
+        time.sleep(args.interval)
+        num_retries += 1
+        data_response = requests.get(
+            data_url, headers={"If-Modified-Since": if_modified_since}
+        )
+        print(f"Status code: {data_response.status_code}", file=sys.stderr)
+        print(
+            f"Last-Modified: {data_response.headers['Last-Modified']}", file=sys.stderr
+        )
+        if data_response.status_code == 200:
+            json.dump(data_response.json(), args.outfile)
+            keep_going = False
+            success = True
+        if keep_going and args.max_retries > 0:
+            keep_going = num_retries <= args.max_retries
+
+    if not success:
+        raise Exception("Failed to retrieve data")
+
+
 def handle_sob(args: argparse.Namespace) -> None:
     token_metadata_index: Dict[str, Dict[str, Any]] = {}
     with open(args.merged, "r") as ifp:
@@ -356,11 +412,9 @@ def handle_sob(args: argparse.Namespace) -> None:
             item = json.loads(line.strip())
             token_metadata_index[str(item["token_id"])] = item
 
-    moonstream_data: List[Dict[str, Any]] = []
     with open(args.moonstream, "r") as ifp:
-        reader = csv.DictReader(ifp)
-        for row in reader:
-            moonstream_data.append(row)
+        full_data = json.load(ifp)
+    moonstream_data: List[Dict[str, Any]] = full_data["data"]
 
     breeding_events: List[Dict[str, Any]] = []
     hatching_events: List[Dict[str, Any]] = []
@@ -370,10 +424,12 @@ def handle_sob(args: argparse.Namespace) -> None:
             event["milestone_1"] = 50
             breeding_events.append(event)
         elif event["event_type"] == "hatchingEggs":
-            metadata = token_metadata_index[event["token"]]
             event["milestone_1"] = 0
-            if metadata["is_mythic"]:
+
+            metadata = token_metadata_index.get(event["token"])
+            if metadata is not None and metadata["is_mythic"]:
                 event["milestone_1"] = 20
+
             hatching_events.append(event)
         else:
             # Other conditions in this if statement in the future.
@@ -388,6 +444,7 @@ def handle_sob(args: argparse.Namespace) -> None:
                 "num_breeds": 0,
                 "num_hatches": 0,
                 "num_mythic_hatches": 0,
+                "block_number": event["block_number"],
             }
         player_points[player]["milestone_1"] += event["milestone_1"]
         player_points[player]["num_breeds"] += 1
@@ -399,6 +456,7 @@ def handle_sob(args: argparse.Namespace) -> None:
                 "num_breeds": 0,
                 "num_hatches": 0,
                 "num_mythic_hatches": 0,
+                "block_number": event["block_number"],
             }
         player_points[player]["milestone_1"] += event["milestone_1"]
         player_points[player]["num_hatches"] += 1
@@ -565,10 +623,51 @@ def generate_cli() -> argparse.ArgumentParser:
     sob_parser.add_argument(
         "--moonstream",
         required=True,
-        help="File provided by Moonstream",
+        help="JSON file provided by Moonstream",
     )
 
     sob_parser.set_defaults(func=handle_sob)
+
+    moonstream_events_parser = subparsers.add_parser("moonstream-events")
+    moonstream_events_parser.add_argument(
+        "--api",
+        default="https://api.moonstream.to",
+        help="Moonstream API URL (default: https://api.moonstream.to). Access token expected to be set as MOONSTREAM_ACCESS_TOKEN environment variable.",
+    )
+    moonstream_events_parser.add_argument(
+        "-n",
+        "--query-name",
+        required=True,
+        help="Name of Moonstream Query API query to use to generate events data",
+    )
+    moonstream_events_parser.add_argument(
+        "--start",
+        required=True,
+        type=int,
+        help="Starting timestamp for data generation",
+    )
+    moonstream_events_parser.add_argument(
+        "--interval", type=float, default=2.0, help="Polling interval for updated data"
+    )
+    moonstream_events_parser.add_argument(
+        "--max-retries",
+        type=int,
+        default=0,
+        help="Maximum number of retries for data (0 means unlimited).",
+    )
+    moonstream_events_parser.add_argument(
+        "-o",
+        "--outfile",
+        type=argparse.FileType("w"),
+        default=sys.stdout,
+        help="(Optional) file to write output to. Default: sys.stdout",
+    )
+
+    moonstream_events_parser.set_defaults(func=handle_moonstream_events)
+
+    total_supply_parser = subparsers.add_parser("total-supply")
+    ERC721WithDiamondStorage.add_default_arguments(total_supply_parser, False)
+    total_supply_parser.set_defaults(func=ERC721WithDiamondStorage.handle_total_supply)
 
     return parser
 
