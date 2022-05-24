@@ -26,6 +26,8 @@ def unicorn_dnas(
     num_workers: int = 1,
     timeout: float = 30.0,
     checkpoint_file: Optional[str] = None,
+    # 43200 blocks is roughly 24 hours worth of Polygon blocks
+    cache_liveness: int = 43200,
 ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     if block_number is None:
         block_number = len(chain) - 1
@@ -40,7 +42,12 @@ def unicorn_dnas(
                 stripped_line = line.strip()
                 if stripped_line:
                     result = json.loads(stripped_line)
-                    if result.get("dna") is not None:
+                    result_dna = result.get("dna")
+                    if (
+                        result_dna is not None
+                        and result_dna != "2"
+                        and result["block_number"] >= block_number - cache_liveness
+                    ):
                         results.append(result)
                         checkpointed_token_ids.add(result["token_id"])
 
@@ -175,6 +182,8 @@ def unicorn_mythic_body_parts(
     results: List[Dict[str, Any]] = []
     errors: List[Dict[str, Any]] = []
 
+    dnas_index = {item["token_id"]: item for item in dnas}
+
     checkpointed_token_ids: Set[int] = set()
     if checkpoint_file is not None:
         with open(checkpoint_file, "r") as ifp:
@@ -182,7 +191,12 @@ def unicorn_mythic_body_parts(
                 stripped_line = line.strip()
                 if stripped_line:
                     result = json.loads(stripped_line)
-                    if result.get("num_mythic_body_parts") is not None:
+                    dna_result = dnas_index[result["token_id"]]
+                    if (
+                        result.get("num_mythic_body_parts") is not None
+                        and result.get("dna") != "2"
+                        and dna_result["block_number"] <= result["block_number"]
+                    ):
                         results.append(result)
                         checkpointed_token_ids.add(result["token_id"])
 
