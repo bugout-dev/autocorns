@@ -8,6 +8,8 @@ import sys
 import time
 from typing import Any, Dict, List, Optional, Set, Tuple
 
+
+import brownie
 from brownie import network
 from brownie.network import chain
 import requests
@@ -168,6 +170,68 @@ def unicorn_metadata(
     return results, errors
 
 
+def multicall_metadata_reciver(
+    contract_address: ChecksumAddress,
+    token_ids: List[int],
+    block_number: Optional[int] = None,
+    checkpoint_file: Optional[str] = None,
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    if block_number is None:
+        block_number = len(chain) - 1
+
+    contract = StatsFacet.StatsFacet(contract_address)
+
+    results: List[Dict[str, Any]] = []
+    checkpointed_token_ids: Set[int] = set()
+    if checkpoint_file is not None:
+        with open(checkpoint_file, "r") as ifp:
+            for line in ifp:
+                stripped_line = line.strip()
+                if stripped_line:
+                    result = json.loads(stripped_line)
+                    if (
+                        result.get("class_number") is not None
+                        and result.get("lifecycle_stage") is not None
+                    ):
+                        results.append(result)
+                        checkpointed_token_ids.add(result["token_id"])
+
+    errors: List[Dict[str, Any]] = []
+
+    tokens_metadata = []
+
+    calls_progress_bar = tqdm(
+        total=len(token_ids),
+        desc="Submitting requests for unicorn classes",
+    )
+    print(f"Submitting {len(token_ids)} calls")
+
+    brownie.multicall(address=contract_address)
+    with brownie.multicall:
+        for token_id in token_ids:
+            token_data = contract.contract.getUnicornMetadata(token_id)
+            tokens_metadata.append(token_data)
+            calls_progress_bar.update()
+
+    for token_id, token_data in zip(token_ids, tokens_metadata):
+        try:
+            result = {
+                "token_id": token_id,
+                "block_number": block_number,
+                "lifecycle_stage": token_data[3],
+                "class_number": token_data[-2],
+            }
+            results.append(result)
+        except Exception as e:
+            error = {
+                "token_id": token_id,
+                "block_number": block_number,
+                "error": f"Failed to retrieve DNA: {str(e)}",
+            }
+            errors.append(error)
+    return results, errors
+
+
 def unicorn_mythic_body_parts(
     contract_address: ChecksumAddress,
     dnas: List[Dict[str, Any]],
@@ -278,12 +342,18 @@ def handle_metadata(args: argparse.Namespace) -> None:
         args.end = args.start
     assert args.start <= args.end, "Starting token ID must not exceed ending token ID"
     token_ids = range(args.start, args.end + 1)
-    results, errors = unicorn_metadata(
+    # results, errors = unicorn_metadata(
+    #     args.address,
+    #     token_ids,
+    #     args.block_number,
+    #     args.num_workers,
+    #     args.timeout,
+    #     args.checkpoint,
+    # )
+    results, errors = multicall_metadata_reciver(
         args.address,
         token_ids,
         args.block_number,
-        args.num_workers,
-        args.timeout,
         args.checkpoint,
     )
 
