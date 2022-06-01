@@ -191,6 +191,8 @@ def unicorn_mythic_body_parts(
                 stripped_line = line.strip()
                 if stripped_line:
                     result = json.loads(stripped_line)
+                    if result["token_id"] not in dnas_index:
+                        continue
                     dna_result = dnas_index[result["token_id"]]
                     if (
                         result.get("num_mythic_body_parts") is not None
@@ -360,7 +362,7 @@ def handle_merge(args: argparse.Namespace) -> None:
             result["mythic_body_parts_block_number"] = mythic_body_parts_data[
                 "block_number"
             ]
-            if result["lifecycle_stage"] == 0:
+            if mythic_body_parts_data.get("num_mythic_body_parts") is None and result["lifecycle_stage"] == 0:
                 result["num_mythic_body_parts"] = 0
             result["is_mythic"] = result["num_mythic_body_parts"] > 0
             result["is_hidden_class"] = result["class_number"] in hidden_classes
