@@ -474,6 +474,7 @@ def handle_sob(args: argparse.Namespace) -> None:
                 "num_breeds": 0,
                 "num_hatches": 0,
                 "num_mythic_hatches": 0,
+                "num_evolutions": 0,
                 "block_number": event["block_number"],
             }
         player_points[player]["milestone_1"] += event["milestone_1"]
@@ -486,6 +487,7 @@ def handle_sob(args: argparse.Namespace) -> None:
                 "num_breeds": 0,
                 "num_hatches": 0,
                 "num_mythic_hatches": 0,
+                "num_evolutions": 0,
                 "block_number": event["block_number"],
             }
         player_points[player]["milestone_1"] += event["milestone_1"]
@@ -500,6 +502,7 @@ def handle_sob(args: argparse.Namespace) -> None:
                 "num_breeds": 0,
                 "num_hatches": 0,
                 "num_mythic_hatches": 0,
+                "num_evolutions": 0,
                 "block_number": event["block_number"],
             }
         player_points[player]["milestone_1"] += event["milestone_1"]
