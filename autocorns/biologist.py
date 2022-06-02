@@ -668,6 +668,11 @@ def generate_cli() -> argparse.ArgumentParser:
         required=True,
         help="JSON file provided by Moonstream",
     )
+    sob_parser.add_argument(
+        "--evolution",
+        required=True,
+        help="JSON file provided by Moonstream",
+    )
 
     sob_parser.set_defaults(func=handle_sob)
 

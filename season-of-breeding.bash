@@ -29,7 +29,7 @@ time autocorns biologist dnas \
     --num-workers 5 \
     --timeout 5.0 \
     --checkpoint data/dnas.json \
-    -u
+    --update-checkpoint
 
 time autocorns biologist metadata \
     --network $BROWNIE_NETWORK \
@@ -39,7 +39,7 @@ time autocorns biologist metadata \
     --num-workers 5 \
     --timeout 5.0 \
     --checkpoint data/metadata.json \
-    -u
+    --update-checkpoint
 
 
 time autocorns biologist mythic-body-parts \
