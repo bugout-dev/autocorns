@@ -362,7 +362,10 @@ def handle_merge(args: argparse.Namespace) -> None:
             result["mythic_body_parts_block_number"] = mythic_body_parts_data[
                 "block_number"
             ]
-            if mythic_body_parts_data.get("num_mythic_body_parts") is None and result["lifecycle_stage"] == 0:
+            if (
+                mythic_body_parts_data.get("num_mythic_body_parts") is None
+                and result["lifecycle_stage"] == 0
+            ):
                 result["num_mythic_body_parts"] = 0
             result["is_mythic"] = result["num_mythic_body_parts"] > 0
             result["is_hidden_class"] = result["class_number"] in hidden_classes
@@ -430,10 +433,17 @@ def handle_sob(args: argparse.Namespace) -> None:
 
     with open(args.moonstream, "r") as ifp:
         full_data = json.load(ifp)
+
+    with open(args.evolution, "r") as ifp:
+        evolution_data = json.load(ifp)
+
     moonstream_data: List[Dict[str, Any]] = full_data["data"]
+
+    moonstream_evolution_data: List[Dict[str, Any]] = evolution_data["data"]
 
     breeding_events: List[Dict[str, Any]] = []
     hatching_events: List[Dict[str, Any]] = []
+    evolution_events: List[Dict[str, Any]] = []
 
     for event in moonstream_data:
         if event["event_type"] == "breeding":
@@ -451,6 +461,10 @@ def handle_sob(args: argparse.Namespace) -> None:
             # Other conditions in this if statement in the future.
             pass
 
+    for event in moonstream_evolution_data:
+        event["milestone_1"] = 10
+        evolution_events.append(event)
+
     player_points: Dict[str, Dict[str, int]] = {}
     for event in breeding_events:
         player = event["player_wallet"]
@@ -460,6 +474,7 @@ def handle_sob(args: argparse.Namespace) -> None:
                 "num_breeds": 0,
                 "num_hatches": 0,
                 "num_mythic_hatches": 0,
+                "num_evolutions": 0,
                 "block_number": event["block_number"],
             }
         player_points[player]["milestone_1"] += event["milestone_1"]
@@ -472,11 +487,26 @@ def handle_sob(args: argparse.Namespace) -> None:
                 "num_breeds": 0,
                 "num_hatches": 0,
                 "num_mythic_hatches": 0,
+                "num_evolutions": 0,
                 "block_number": event["block_number"],
             }
         player_points[player]["milestone_1"] += event["milestone_1"]
         player_points[player]["num_hatches"] += 1
         player_points[player]["num_mythic_hatches"] += int(event["milestone_1"] > 0)
+
+    for event in evolution_events:
+        player = event["player_wallet"]
+        if player_points.get(player) is None:
+            player_points[player] = {
+                "milestone_1": 0,
+                "num_breeds": 0,
+                "num_hatches": 0,
+                "num_mythic_hatches": 0,
+                "num_evolutions": 0,
+                "block_number": event["block_number"],
+            }
+        player_points[player]["milestone_1"] += event["milestone_1"]
+        player_points[player]["num_evolutions"] += 1
 
     scores: List[Dict[str, Any]] = []
     for player, points in player_points.items():
@@ -638,6 +668,11 @@ def generate_cli() -> argparse.ArgumentParser:
     )
     sob_parser.add_argument(
         "--moonstream",
+        required=True,
+        help="JSON file provided by Moonstream",
+    )
+    sob_parser.add_argument(
+        "--evolution",
         required=True,
         help="JSON file provided by Moonstream",
     )

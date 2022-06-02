@@ -29,7 +29,7 @@ time autocorns biologist dnas \
     --num-workers 5 \
     --timeout 5.0 \
     --checkpoint data/dnas.json \
-    -u
+    --update-checkpoint
 
 time autocorns biologist metadata \
     --network $BROWNIE_NETWORK \
@@ -39,7 +39,7 @@ time autocorns biologist metadata \
     --num-workers 5 \
     --timeout 5.0 \
     --checkpoint data/metadata.json \
-    -u
+    --update-checkpoint
 
 
 time autocorns biologist mythic-body-parts \
@@ -63,7 +63,16 @@ time autocorns biologist moonstream-events \
     --max-retries 6 \
     -o data/moonstream.json
 
+
+time autocorns biologist moonstream-events \
+    --start 1651363200 \
+    -n evolution_leaderboard_events \
+    --interval 5.0 \
+    --max-retries 6 \
+    -o data/evolution.json
+
 time autocorns biologist sob \
     --merged data/merged.json \
     --moonstream data/moonstream.json \
+    --evolution data/evolution.json \
     >data/leaderboard.json
