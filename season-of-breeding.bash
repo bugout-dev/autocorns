@@ -63,7 +63,16 @@ time autocorns biologist moonstream-events \
     --max-retries 6 \
     -o data/moonstream.json
 
+
+time autocorns biologist moonstream-events \
+    --start 1651363200 \
+    -n evolution_leaderboard_events \
+    --interval 5.0 \
+    --max-retries 6 \
+    -o data/evolution.json
+
 time autocorns biologist sob \
     --merged data/merged.json \
     --moonstream data/moonstream.json \
+    --evolution data/evolution.json \
     >data/leaderboard.json
