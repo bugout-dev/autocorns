@@ -392,33 +392,36 @@ def handle_moonstream_events(args: argparse.Namespace) -> None:
         "params": {"start_timestamp": args.start, "end_timestamp": end_timestamp}
     }
 
-    response = requests.post(request_url, json=request_body, headers=headers)
-    response.raise_for_status()
-    response_body = response.json()
-    data_url = response_body["url"]
-
-    keep_going = True
-    num_retries = 0
-
     success = False
+    attempts = 0
 
-    print(f"If-Modified-Since: {if_modified_since}")
-    while keep_going:
-        time.sleep(args.interval)
-        num_retries += 1
-        data_response = requests.get(
-            data_url, headers={"If-Modified-Since": if_modified_since}
-        )
-        print(f"Status code: {data_response.status_code}", file=sys.stderr)
-        print(
-            f"Last-Modified: {data_response.headers['Last-Modified']}", file=sys.stderr
-        )
-        if data_response.status_code == 200:
-            json.dump(data_response.json(), args.outfile)
-            keep_going = False
-            success = True
-        if keep_going and args.max_retries > 0:
-            keep_going = num_retries <= args.max_retries
+    while not success and attempts < args.max_retries:
+        attempts += 1
+        response = requests.post(request_url, json=request_body, headers=headers)
+        response.raise_for_status()
+        response_body = response.json()
+        data_url = response_body["url"]
+
+        keep_going = True
+        num_retries = 0
+
+        print(f"If-Modified-Since: {if_modified_since}")
+        while keep_going:
+            time.sleep(args.interval)
+            num_retries += 1
+            data_response = requests.get(
+                data_url, headers={"If-Modified-Since": if_modified_since}
+            )
+            print(f"Status code: {data_response.status_code}", file=sys.stderr)
+            print(
+                f"Last-Modified: {data_response.headers['Last-Modified']}", file=sys.stderr
+            )
+            if data_response.status_code == 200:
+                json.dump(data_response.json(), args.outfile)
+                keep_going = False
+                success = True
+            if keep_going and args.max_retries > 0:
+                keep_going = num_retries <= args.max_retries
 
     if not success:
         raise Exception("Failed to retrieve data")
