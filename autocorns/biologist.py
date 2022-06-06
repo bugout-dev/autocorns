@@ -431,7 +431,7 @@ def handle_moonstream_events(args: argparse.Namespace) -> None:
 
 
 def handle_sob(args: argparse.Namespace) -> None:
-    milestone_2_cutoff = 29266750
+    milestone_2_cutoff = 29254405
     token_metadata_index: Dict[str, Dict[str, Any]] = {}
     with open(args.merged, "r") as ifp:
         for line in ifp:
@@ -554,10 +554,11 @@ def handle_sob(args: argparse.Namespace) -> None:
         else:
             player_points[player]["num_hatches_2"] += 1
 
-        player_points[player]["num_mythic_hatches"] += int(event["milestone_1"] + event["milestone_2"] > 0)
+        player_points[player]["num_mythic_hatches"] += int(
+            event["milestone_1"] + event["milestone_2"] > 0
+        )
         player_points[player]["num_mythic_hatches_1"] += int(event["milestone_1"] > 0)
         player_points[player]["num_mythic_hatches_2"] += int(event["milestone_2"] > 0)
-
 
     for event in evolution_events:
         player = event["player_wallet"]
