@@ -367,6 +367,8 @@ def handle_merge(args: argparse.Namespace) -> None:
                 and result["lifecycle_stage"] == 0
             ):
                 result["num_mythic_body_parts"] = 0
+            if mythic_body_parts_data.get("num_mythic_body_parts") == 6:
+                result["num_mythic_body_parts"] = 0
             result["is_mythic"] = result["num_mythic_body_parts"] > 0
             result["is_hidden_class"] = result["class_number"] in hidden_classes
             print(json.dumps(result), file=sys.stdout)
@@ -414,7 +416,8 @@ def handle_moonstream_events(args: argparse.Namespace) -> None:
             )
             print(f"Status code: {data_response.status_code}", file=sys.stderr)
             print(
-                f"Last-Modified: {data_response.headers['Last-Modified']}", file=sys.stderr
+                f"Last-Modified: {data_response.headers['Last-Modified']}",
+                file=sys.stderr,
             )
             if data_response.status_code == 200:
                 json.dump(data_response.json(), args.outfile)
