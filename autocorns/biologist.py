@@ -431,6 +431,7 @@ def handle_moonstream_events(args: argparse.Namespace) -> None:
 
 
 def handle_sob(args: argparse.Namespace) -> None:
+    milestone_2_cutoff = 29266750
     token_metadata_index: Dict[str, Dict[str, Any]] = {}
     with open(args.merged, "r") as ifp:
         for line in ifp:
@@ -453,14 +454,25 @@ def handle_sob(args: argparse.Namespace) -> None:
 
     for event in moonstream_data:
         if event["event_type"] == "breeding":
-            event["milestone_1"] = 50
+            if event["block_number"] < milestone_2_cutoff:
+                event["milestone_1"] = 50
+                event["milestone_2"] = 0
+            else:
+                event["milestone_1"] = 0
+                event["milestone_2"] = 20
             breeding_events.append(event)
         elif event["event_type"] == "hatchingEggs":
             event["milestone_1"] = 0
+            event["milestone_2"] = 0
 
             metadata = token_metadata_index.get(event["token"])
             if metadata is not None and metadata["is_mythic"]:
-                event["milestone_1"] = 20
+                if event["block_number"] < milestone_2_cutoff:
+                    event["milestone_1"] = 20
+                    event["milestone_2"] = 0
+                else:
+                    event["milestone_1"] = 0
+                    event["milestone_2"] = 20
 
             hatching_events.append(event)
         else:
@@ -468,7 +480,13 @@ def handle_sob(args: argparse.Namespace) -> None:
             pass
 
     for event in moonstream_evolution_data:
-        event["milestone_1"] = 10
+        if event["block_number"] < milestone_2_cutoff:
+            event["milestone_1"] = 10
+            event["milestone_2"] = 50
+        else:
+            event["milestone_1"] = 0
+            event["milestone_2"] = 50
+
         evolution_events.append(event)
 
     player_points: Dict[str, Dict[str, int]] = {}
@@ -477,49 +495,107 @@ def handle_sob(args: argparse.Namespace) -> None:
         if player_points.get(player) is None:
             player_points[player] = {
                 "milestone_1": 0,
+                "milestone_2": 0,
+                "total_score": 0,
                 "num_breeds": 0,
                 "num_hatches": 0,
                 "num_mythic_hatches": 0,
                 "num_evolutions": 0,
+                "num_breeds_1": 0,
+                "num_breeds_2": 0,
+                "num_hatches_1": 0,
+                "num_hatches_2": 0,
+                "num_mythic_hatches_1": 0,
+                "num_mythic_hatches_2": 0,
+                "num_evolutions_1": 0,
+                "num_evolutions_2": 0,
                 "block_number": event["block_number"],
             }
         player_points[player]["milestone_1"] += event["milestone_1"]
+        player_points[player]["milestone_2"] += event["milestone_2"]
+        player_points[player]["total_score"] += (
+            event["milestone_1"] + event["milestone_2"]
+        )
         player_points[player]["num_breeds"] += 1
+        if event["block_number"] < milestone_2_cutoff:
+            player_points[player]["num_breeds_1"] += 1
+        else:
+            player_points[player]["num_breeds_2"] += 1
+
     for event in hatching_events:
         player = event["player_wallet"]
         if player_points.get(player) is None:
             player_points[player] = {
                 "milestone_1": 0,
+                "milestone_2": 0,
+                "total_score": 0,
                 "num_breeds": 0,
                 "num_hatches": 0,
                 "num_mythic_hatches": 0,
                 "num_evolutions": 0,
+                "num_breeds_1": 0,
+                "num_breeds_2": 0,
+                "num_hatches_1": 0,
+                "num_hatches_2": 0,
+                "num_mythic_hatches_1": 0,
+                "num_mythic_hatches_2": 0,
+                "num_evolutions_1": 0,
+                "num_evolutions_2": 0,
                 "block_number": event["block_number"],
             }
         player_points[player]["milestone_1"] += event["milestone_1"]
+        player_points[player]["milestone_2"] += event["milestone_2"]
+        player_points[player]["total_score"] += (
+            event["milestone_1"] + event["milestone_2"]
+        )
         player_points[player]["num_hatches"] += 1
-        player_points[player]["num_mythic_hatches"] += int(event["milestone_1"] > 0)
+        if event["block_number"] < milestone_2_cutoff:
+            player_points[player]["num_hatches_1"] += 1
+        else:
+            player_points[player]["num_hatches_2"] += 1
+
+        player_points[player]["num_mythic_hatches"] += int(event["milestone_1"] + event["milestone_2"] > 0)
+        player_points[player]["num_mythic_hatches_1"] += int(event["milestone_1"] > 0)
+        player_points[player]["num_mythic_hatches_2"] += int(event["milestone_2"] > 0)
+
 
     for event in evolution_events:
         player = event["player_wallet"]
         if player_points.get(player) is None:
             player_points[player] = {
                 "milestone_1": 0,
+                "milestone_2": 0,
+                "total_score": 0,
                 "num_breeds": 0,
                 "num_hatches": 0,
                 "num_mythic_hatches": 0,
                 "num_evolutions": 0,
+                "num_breeds_1": 0,
+                "num_breeds_2": 0,
+                "num_hatches_1": 0,
+                "num_hatches_2": 0,
+                "num_mythic_hatches_1": 0,
+                "num_mythic_hatches_2": 0,
+                "num_evolutions_1": 0,
+                "num_evolutions_2": 0,
                 "block_number": event["block_number"],
             }
         player_points[player]["milestone_1"] += event["milestone_1"]
+        player_points[player]["milestone_2"] += event["milestone_2"]
+        player_points[player]["total_score"] += event["milestone_2"]
         player_points[player]["num_evolutions"] += 1
+        if event["block_number"] < milestone_2_cutoff:
+            player_points[player]["num_evolutions_1"] += 1
+            player_points[player]["num_evolutions_2"] += 1
+        else:
+            player_points[player]["num_evolutions_2"] += 1
 
     scores: List[Dict[str, Any]] = []
     for player, points in player_points.items():
         scores.append(
             {
                 "address": player,
-                "score": points["milestone_1"],
+                "score": points["total_score"],
                 "points_data": points,
             }
         )
