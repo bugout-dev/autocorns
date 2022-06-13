@@ -255,6 +255,8 @@ def unicorn_mythic_body_parts(
                 stripped_line = line.strip()
                 if stripped_line:
                     result = json.loads(stripped_line)
+                    if result["token_id"] not in dnas_index:
+                        continue
                     dna_result = dnas_index[result["token_id"]]
                     if (
                         result.get("num_mythic_body_parts") is not None
@@ -430,7 +432,12 @@ def handle_merge(args: argparse.Namespace) -> None:
             result["mythic_body_parts_block_number"] = mythic_body_parts_data[
                 "block_number"
             ]
-            if result["lifecycle_stage"] == 0:
+            if (
+                mythic_body_parts_data.get("num_mythic_body_parts") is None
+                and result["lifecycle_stage"] == 0
+            ):
+                result["num_mythic_body_parts"] = 0
+            if mythic_body_parts_data.get("num_mythic_body_parts") == 6:
                 result["num_mythic_body_parts"] = 0
             result["is_mythic"] = result["num_mythic_body_parts"] > 0
             result["is_hidden_class"] = result["class_number"] in hidden_classes
@@ -457,39 +464,44 @@ def handle_moonstream_events(args: argparse.Namespace) -> None:
         "params": {"start_timestamp": args.start, "end_timestamp": end_timestamp}
     }
 
-    response = requests.post(request_url, json=request_body, headers=headers)
-    response.raise_for_status()
-    response_body = response.json()
-    data_url = response_body["url"]
-
-    keep_going = True
-    num_retries = 0
-
     success = False
+    attempts = 0
 
-    print(f"If-Modified-Since: {if_modified_since}")
-    while keep_going:
-        time.sleep(args.interval)
-        num_retries += 1
-        data_response = requests.get(
-            data_url, headers={"If-Modified-Since": if_modified_since}
-        )
-        print(f"Status code: {data_response.status_code}", file=sys.stderr)
-        print(
-            f"Last-Modified: {data_response.headers['Last-Modified']}", file=sys.stderr
-        )
-        if data_response.status_code == 200:
-            json.dump(data_response.json(), args.outfile)
-            keep_going = False
-            success = True
-        if keep_going and args.max_retries > 0:
-            keep_going = num_retries <= args.max_retries
+    while not success and attempts < args.max_retries:
+        attempts += 1
+        response = requests.post(request_url, json=request_body, headers=headers)
+        response.raise_for_status()
+        response_body = response.json()
+        data_url = response_body["url"]
+
+        keep_going = True
+        num_retries = 0
+
+        print(f"If-Modified-Since: {if_modified_since}")
+        while keep_going:
+            time.sleep(args.interval)
+            num_retries += 1
+            data_response = requests.get(
+                data_url, headers={"If-Modified-Since": if_modified_since}
+            )
+            print(f"Status code: {data_response.status_code}", file=sys.stderr)
+            print(
+                f"Last-Modified: {data_response.headers['Last-Modified']}",
+                file=sys.stderr,
+            )
+            if data_response.status_code == 200:
+                json.dump(data_response.json(), args.outfile)
+                keep_going = False
+                success = True
+            if keep_going and args.max_retries > 0:
+                keep_going = num_retries <= args.max_retries
 
     if not success:
         raise Exception("Failed to retrieve data")
 
 
 def handle_sob(args: argparse.Namespace) -> None:
+    milestone_2_cutoff = 29254405
     token_metadata_index: Dict[str, Dict[str, Any]] = {}
     with open(args.merged, "r") as ifp:
         for line in ifp:
@@ -498,26 +510,54 @@ def handle_sob(args: argparse.Namespace) -> None:
 
     with open(args.moonstream, "r") as ifp:
         full_data = json.load(ifp)
+
+    with open(args.evolution, "r") as ifp:
+        evolution_data = json.load(ifp)
+
     moonstream_data: List[Dict[str, Any]] = full_data["data"]
+
+    moonstream_evolution_data: List[Dict[str, Any]] = evolution_data["data"]
 
     breeding_events: List[Dict[str, Any]] = []
     hatching_events: List[Dict[str, Any]] = []
+    evolution_events: List[Dict[str, Any]] = []
 
     for event in moonstream_data:
         if event["event_type"] == "breeding":
-            event["milestone_1"] = 50
+            if event["block_number"] < milestone_2_cutoff:
+                event["milestone_1"] = 50
+                event["milestone_2"] = 0
+            else:
+                event["milestone_1"] = 0
+                event["milestone_2"] = 20
             breeding_events.append(event)
         elif event["event_type"] == "hatchingEggs":
             event["milestone_1"] = 0
+            event["milestone_2"] = 0
 
             metadata = token_metadata_index.get(event["token"])
             if metadata is not None and metadata["is_mythic"]:
-                event["milestone_1"] = 20
+                if event["block_number"] < milestone_2_cutoff:
+                    event["milestone_1"] = 20
+                    event["milestone_2"] = 0
+                else:
+                    event["milestone_1"] = 0
+                    event["milestone_2"] = 20
 
             hatching_events.append(event)
         else:
             # Other conditions in this if statement in the future.
             pass
+
+    for event in moonstream_evolution_data:
+        if event["block_number"] < milestone_2_cutoff:
+            event["milestone_1"] = 10
+            event["milestone_2"] = 50
+        else:
+            event["milestone_1"] = 0
+            event["milestone_2"] = 50
+
+        evolution_events.append(event)
 
     player_points: Dict[str, Dict[str, int]] = {}
     for event in breeding_events:
@@ -525,33 +565,108 @@ def handle_sob(args: argparse.Namespace) -> None:
         if player_points.get(player) is None:
             player_points[player] = {
                 "milestone_1": 0,
+                "milestone_2": 0,
+                "total_score": 0,
                 "num_breeds": 0,
                 "num_hatches": 0,
                 "num_mythic_hatches": 0,
+                "num_evolutions": 0,
+                "num_breeds_1": 0,
+                "num_breeds_2": 0,
+                "num_hatches_1": 0,
+                "num_hatches_2": 0,
+                "num_mythic_hatches_1": 0,
+                "num_mythic_hatches_2": 0,
+                "num_evolutions_1": 0,
+                "num_evolutions_2": 0,
                 "block_number": event["block_number"],
             }
         player_points[player]["milestone_1"] += event["milestone_1"]
+        player_points[player]["milestone_2"] += event["milestone_2"]
+        player_points[player]["total_score"] += (
+            event["milestone_1"] + event["milestone_2"]
+        )
         player_points[player]["num_breeds"] += 1
+        if event["block_number"] < milestone_2_cutoff:
+            player_points[player]["num_breeds_1"] += 1
+        else:
+            player_points[player]["num_breeds_2"] += 1
+
     for event in hatching_events:
         player = event["player_wallet"]
         if player_points.get(player) is None:
             player_points[player] = {
                 "milestone_1": 0,
+                "milestone_2": 0,
+                "total_score": 0,
                 "num_breeds": 0,
                 "num_hatches": 0,
                 "num_mythic_hatches": 0,
+                "num_evolutions": 0,
+                "num_breeds_1": 0,
+                "num_breeds_2": 0,
+                "num_hatches_1": 0,
+                "num_hatches_2": 0,
+                "num_mythic_hatches_1": 0,
+                "num_mythic_hatches_2": 0,
+                "num_evolutions_1": 0,
+                "num_evolutions_2": 0,
                 "block_number": event["block_number"],
             }
         player_points[player]["milestone_1"] += event["milestone_1"]
+        player_points[player]["milestone_2"] += event["milestone_2"]
+        player_points[player]["total_score"] += (
+            event["milestone_1"] + event["milestone_2"]
+        )
         player_points[player]["num_hatches"] += 1
-        player_points[player]["num_mythic_hatches"] += int(event["milestone_1"] > 0)
+        if event["block_number"] < milestone_2_cutoff:
+            player_points[player]["num_hatches_1"] += 1
+        else:
+            player_points[player]["num_hatches_2"] += 1
+
+        player_points[player]["num_mythic_hatches"] += int(
+            event["milestone_1"] + event["milestone_2"] > 0
+        )
+        player_points[player]["num_mythic_hatches_1"] += int(event["milestone_1"] > 0)
+        player_points[player]["num_mythic_hatches_2"] += int(event["milestone_2"] > 0)
+
+    for event in evolution_events:
+        player = event["player_wallet"]
+        if player_points.get(player) is None:
+            player_points[player] = {
+                "milestone_1": 0,
+                "milestone_2": 0,
+                "total_score": 0,
+                "num_breeds": 0,
+                "num_hatches": 0,
+                "num_mythic_hatches": 0,
+                "num_evolutions": 0,
+                "num_breeds_1": 0,
+                "num_breeds_2": 0,
+                "num_hatches_1": 0,
+                "num_hatches_2": 0,
+                "num_mythic_hatches_1": 0,
+                "num_mythic_hatches_2": 0,
+                "num_evolutions_1": 0,
+                "num_evolutions_2": 0,
+                "block_number": event["block_number"],
+            }
+        player_points[player]["milestone_1"] += event["milestone_1"]
+        player_points[player]["milestone_2"] += event["milestone_2"]
+        player_points[player]["total_score"] += event["milestone_2"]
+        player_points[player]["num_evolutions"] += 1
+        if event["block_number"] < milestone_2_cutoff:
+            player_points[player]["num_evolutions_1"] += 1
+            player_points[player]["num_evolutions_2"] += 1
+        else:
+            player_points[player]["num_evolutions_2"] += 1
 
     scores: List[Dict[str, Any]] = []
     for player, points in player_points.items():
         scores.append(
             {
                 "address": player,
-                "score": points["milestone_1"],
+                "score": points["total_score"],
                 "points_data": points,
             }
         )
@@ -706,6 +821,11 @@ def generate_cli() -> argparse.ArgumentParser:
     )
     sob_parser.add_argument(
         "--moonstream",
+        required=True,
+        help="JSON file provided by Moonstream",
+    )
+    sob_parser.add_argument(
+        "--evolution",
         required=True,
         help="JSON file provided by Moonstream",
     )
