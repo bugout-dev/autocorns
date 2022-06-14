@@ -21,18 +21,13 @@ from . import StatsFacet
 from eth_typing.evm import ChecksumAddress
 
 
-CALL_CHANK_SIZE = 1000
+CALL_CHUNK_SIZE = 1000
 
 
 def unicorn_dnas(
     contract_address: ChecksumAddress,
     token_ids: List[int],
     block_number: Optional[int] = None,
-    num_workers: int = 1,
-    timeout: float = 30.0,
-    checkpoint_file: Optional[str] = None,
-    # 43200 blocks is roughly 24 hours worth of Polygon blocks
-    cache_liveness: int = 43200,
 ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     if block_number is None:
         block_number = len(chain) - 1
@@ -53,8 +48,8 @@ def unicorn_dnas(
     brownie.multicall(address=contract_address, block_identifier=block_number)
 
     for tokens_ids_chunk in [
-        token_ids[i : i + CALL_CHANK_SIZE]
-        for i in range(0, len(token_ids), CALL_CHANK_SIZE)
+        token_ids[i : i + CALL_CHUNK_SIZE]
+        for i in range(0, len(token_ids), CALL_CHUNK_SIZE)
     ]:
         with brownie.multicall:
             for token_id in tokens_ids_chunk:
@@ -85,9 +80,6 @@ def unicorn_metadata(
     contract_address: ChecksumAddress,
     token_ids: List[int],
     block_number: Optional[int] = None,
-    num_workers: int = 1,
-    timeout: float = 30.0,
-    checkpoint_file: Optional[str] = None,
 ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     if block_number is None:
         block_number = len(chain) - 1
@@ -109,8 +101,8 @@ def unicorn_metadata(
     brownie.multicall(address=contract_address, block_identifier=block_number)
 
     for tokens_ids_chunk in [
-        token_ids[i : i + CALL_CHANK_SIZE]
-        for i in range(0, len(token_ids), CALL_CHANK_SIZE)
+        token_ids[i : i + CALL_CHUNK_SIZE]
+        for i in range(0, len(token_ids), CALL_CHUNK_SIZE)
     ]:
         with brownie.multicall:
             for token_id in tokens_ids_chunk:
@@ -141,9 +133,6 @@ def unicorn_mythic_body_parts(
     contract_address: ChecksumAddress,
     dnas: List[Dict[str, Any]],
     block_number: Optional[int] = None,
-    num_workers: int = 1,
-    timeout: float = 30.0,
-    checkpoint_file: Optional[str] = None,
 ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     if block_number is None:
         block_number = len(chain) - 1
@@ -165,7 +154,7 @@ def unicorn_mythic_body_parts(
     brownie.multicall(address=contract_address, block_identifier=block_number)
 
     for dnas_chunk in [
-        dnas[i : i + CALL_CHANK_SIZE] for i in range(0, len(dnas), CALL_CHANK_SIZE)
+        dnas[i : i + CALL_CHUNK_SIZE] for i in range(0, len(dnas), CALL_CHUNK_SIZE)
     ]:
         with brownie.multicall:
             for item in dnas_chunk:
@@ -200,18 +189,10 @@ def handle_dnas(args: argparse.Namespace) -> None:
         args.address,
         token_ids,
         args.block_number,
-        args.num_workers,
-        args.timeout,
-        args.checkpoint,
     )
 
     for result in results:
         print(json.dumps(result))
-
-    if args.update_checkpoint and args.checkpoint is not None:
-        with open(args.checkpoint, "w") as ofp:
-            for result in results:
-                print(json.dumps(result), file=ofp)
 
     for error in errors:
         print(json.dumps(error), file=sys.stderr)
@@ -227,18 +208,10 @@ def handle_metadata(args: argparse.Namespace) -> None:
         args.address,
         token_ids,
         args.block_number,
-        args.num_workers,
-        args.timeout,
-        args.checkpoint,
     )
 
     for result in results:
         print(json.dumps(result))
-
-    if args.update_checkpoint and args.checkpoint is not None:
-        with open(args.checkpoint, "w") as ofp:
-            for result in results:
-                print(json.dumps(result), file=ofp)
 
     for error in errors:
         print(json.dumps(error), file=sys.stderr)
@@ -256,19 +229,11 @@ def handle_mythic_body_parts(args: argparse.Namespace) -> None:
         args.address,
         dnas,
         args.block_number,
-        args.num_workers,
-        args.timeout,
-        args.checkpoint,
     )
 
     for result in results:
         json.dump(result, fp=sys.stdout)
         print("")
-
-    if args.update_checkpoint and args.checkpoint is not None:
-        with open(args.checkpoint, "w") as ofp:
-            for result in results:
-                print(json.dumps(result), file=ofp)
 
     for error in errors:
         json.dump(error, fp=sys.stderr)
@@ -567,31 +532,6 @@ def generate_cli() -> argparse.ArgumentParser:
         required=False,
         help="Ending token ID to get DNA for. (If not set, just gets the DNA for the token with the --start token ID.)",
     )
-    dnas_parser.add_argument(
-        "-j",
-        "--num-workers",
-        type=int,
-        default=1,
-        help="Maximum number of concurrent threads to use when crawling",
-    )
-    dnas_parser.add_argument(
-        "-t",
-        "--timeout",
-        type=float,
-        default=30.0,
-        help="Number of seconds to wait for each crawl response",
-    )
-    dnas_parser.add_argument(
-        "--checkpoint",
-        default=None,
-        help="Checkpoint file",
-    )
-    dnas_parser.add_argument(
-        "-u",
-        "--update-checkpoint",
-        action="store_true",
-        help="If you have set a checkpoint, this updates the checkpoint file in place",
-    )
 
     dnas_parser.set_defaults(func=handle_dnas)
 
@@ -609,31 +549,6 @@ def generate_cli() -> argparse.ArgumentParser:
         required=False,
         help="Ending token ID to get DNA for. (If not set, just gets the DNA for the token with the --start token ID.)",
     )
-    metadata_parser.add_argument(
-        "-j",
-        "--num-workers",
-        type=int,
-        default=1,
-        help="Maximum number of concurrent threads to use when crawling",
-    )
-    metadata_parser.add_argument(
-        "-t",
-        "--timeout",
-        type=float,
-        default=30.0,
-        help="Number of seconds to wait for each crawl response",
-    )
-    metadata_parser.add_argument(
-        "--checkpoint",
-        default=None,
-        help="Checkpoint file",
-    )
-    metadata_parser.add_argument(
-        "-u",
-        "--update-checkpoint",
-        action="store_true",
-        help="If you have set a checkpoint, this updates the checkpoint file in place",
-    )
 
     metadata_parser.set_defaults(func=handle_metadata)
 
@@ -643,31 +558,6 @@ def generate_cli() -> argparse.ArgumentParser:
         "--dnas",
         required=True,
         help='Path to JSON file containing results of "autocorns biologist dnas".',
-    )
-    mythic_body_parts_parser.add_argument(
-        "-j",
-        "--num-workers",
-        type=int,
-        default=1,
-        help="Maximum number of concurrent threads to use when crawling",
-    )
-    mythic_body_parts_parser.add_argument(
-        "-t",
-        "--timeout",
-        type=float,
-        default=30.0,
-        help="Number of seconds to wait for each crawl response",
-    )
-    mythic_body_parts_parser.add_argument(
-        "--checkpoint",
-        default=None,
-        help="Checkpoint file",
-    )
-    mythic_body_parts_parser.add_argument(
-        "-u",
-        "--update-checkpoint",
-        action="store_true",
-        help="If you have set a checkpoint, this updates the checkpoint file in place",
     )
 
     mythic_body_parts_parser.set_defaults(func=handle_mythic_body_parts)
