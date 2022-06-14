@@ -2,6 +2,7 @@ import argparse
 from concurrent.futures import as_completed, ThreadPoolExecutor, Future
 import csv
 import datetime
+from enum import Flag
 import json
 import os
 import sys
@@ -21,7 +22,7 @@ from . import StatsFacet
 from eth_typing.evm import ChecksumAddress
 
 
-CALL_CHUNK_SIZE = 1000
+CALL_CHUNK_SIZE = 500
 
 
 def unicorn_dnas(
@@ -296,8 +297,10 @@ def handle_moonstream_events(args: argparse.Namespace) -> None:
     # Assume our clock is not drifting too much from AWS clocks.
     if_modified_since_datetime = datetime.datetime.utcnow()
     if_modified_since = if_modified_since_datetime.strftime("%a, %d %b %Y %H:%M:%S GMT")
-    end_timestamp = int(time.time())
-
+    if args.end:
+        end_timestamp = args.end
+    else:
+        end_timestamp = int(time.time())
     request_body = {
         "params": {"start_timestamp": args.start, "end_timestamp": end_timestamp}
     }
@@ -612,6 +615,12 @@ def generate_cli() -> argparse.ArgumentParser:
         required=True,
         type=int,
         help="Starting timestamp for data generation",
+    )
+    moonstream_events_parser.add_argument(
+        "--end",
+        required=False,
+        type=int,
+        help="Ending timestamp for data generation. Current timestamp if not set.",
     )
     moonstream_events_parser.add_argument(
         "--interval", type=float, default=2.0, help="Polling interval for updated data"
