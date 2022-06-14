@@ -21,7 +21,7 @@ from . import StatsFacet
 from eth_typing.evm import ChecksumAddress
 
 
-CALL_CHANK_SIZE = 5000
+CALL_CHANK_SIZE = 1000
 
 
 def unicorn_dnas(
@@ -50,7 +50,7 @@ def unicorn_dnas(
         desc="Retrieving unicorn DNAs",
     )
 
-    brownie.multicall(address=contract_address)
+    brownie.multicall(address=contract_address, block_identifier=block_number)
 
     for tokens_ids_chunk in [
         token_ids[i : i + CALL_CHANK_SIZE]
@@ -100,13 +100,13 @@ def unicorn_metadata(
 
     tokens_metadata = []
 
+    print(f"Submitting {len(token_ids)} calls")
     calls_progress_bar = tqdm(
         total=len(token_ids),
         desc="Submitting requests for unicorn classes",
     )
-    print(f"Submitting {len(token_ids)} calls")
 
-    brownie.multicall(address=contract_address)
+    brownie.multicall(address=contract_address, block_identifier=block_number)
 
     for tokens_ids_chunk in [
         token_ids[i : i + CALL_CHANK_SIZE]
@@ -160,16 +160,16 @@ def unicorn_mythic_body_parts(
 
     contract = StatsFacet.StatsFacet(contract_address)
 
-    brownie.multicall(address=contract_address)
+    block_number = dnas[0]["block_number"]
+
+    brownie.multicall(address=contract_address, block_identifier=block_number)
 
     for dnas_chunk in [
         dnas[i : i + CALL_CHANK_SIZE] for i in range(0, len(dnas), CALL_CHANK_SIZE)
     ]:
         with brownie.multicall:
             for item in dnas_chunk:
-                token_data = contract.contract.getUnicorn_Body_Parts(
-                    item["token_id"], item["block_number"]
-                )
+                token_data = contract.contract.getUnicornBodyParts(item["token_id"])
                 tokens_metadata.append(token_data)
                 mythic_progress_bar.update()
 
