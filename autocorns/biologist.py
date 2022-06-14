@@ -159,11 +159,12 @@ def unicorn_mythic_body_parts(
     ]:
         with brownie.multicall:
             for item in dnas_chunk:
-                token_data = contract.contract.getUnicornBodyParts(item["token_id"])
+                token_data = contract.contract.getUnicornBodyParts(item["dna"])
                 tokens_metadata.append(token_data)
                 mythic_progress_bar.update()
 
     for item, token_data in zip(dnas, tokens_metadata):
+        print(token_data)
         try:
             result = {
                 **item,
@@ -236,9 +237,9 @@ def handle_mythic_body_parts(args: argparse.Namespace) -> None:
         json.dump(result, fp=sys.stdout)
         print("")
 
-    for error in errors:
-        json.dump(error, fp=sys.stderr)
-        print("", file=sys.stderr)
+    # for error in errors:
+    #     json.dump(error, fp=sys.stderr)
+    #     print("", file=sys.stderr)
 
 
 def handle_merge(args: argparse.Namespace) -> None:
