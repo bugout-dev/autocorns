@@ -12,67 +12,89 @@ then
     exit 1
 fi
 
+if [ -z "$DATA_DIR" ]
+then
+    echo "Set DATA_DIR environment variable"
+    exit 1
+fi
+
+BLOCK_NUMBER_ARG=""
+if [ ! -z "$BLOCK_NUMBER" ]
+then
+    BLOCK_NUMBER_ARG="--block-number $BLOCK_NUMBER"
+fi
+
+END_TIMESTAMP_ARG=""
+if [ ! -z "$END_TIMESTAMP" ]
+then
+    END_TIMESTAMP_ARG="--end $END_TIMESTAMP"
+fi
 
 CU_ADDRESS=0xdC0479CC5BbA033B3e7De9F178607150B3AbCe1f
 
 set -e
 
-TOTAL_SUPPLY=$(autocorns biologist total-supply --network $BROWNIE_NETWORK --address $CU_ADDRESS)
+TOTAL_SUPPLY=$(autocorns biologist total-supply --network $BROWNIE_NETWORK $BLOCK_NUMBER_ARG --address $CU_ADDRESS)
 
 echo "Total supply: $TOTAL_SUPPLY"
 
 time autocorns biologist dnas \
     --network $BROWNIE_NETWORK \
+    $BLOCK_NUMBER_ARG \
     --address $CU_ADDRESS \
     --start 1 \
     --end $TOTAL_SUPPLY \
     --num-workers 5 \
     --timeout 5.0 \
-    --checkpoint data/dnas.json \
+    --checkpoint $DATA_DIR/dnas.json \
     --update-checkpoint
 
 time autocorns biologist metadata \
     --network $BROWNIE_NETWORK \
+    $BLOCK_NUMBER_ARG \
     --address $CU_ADDRESS \
     --start 1 \
     --end $TOTAL_SUPPLY \
     --num-workers 5 \
     --timeout 5.0 \
-    --checkpoint data/metadata.json \
+    --checkpoint $DATA_DIR/metadata.json \
     --update-checkpoint
 
 
 time autocorns biologist mythic-body-parts \
     --network $BROWNIE_NETWORK \
+    $BLOCK_NUMBER_ARG \
     --address $CU_ADDRESS \
-    --dnas data/dnas.json \
+    --dnas $DATA_DIR/dnas.json \
     --num-workers 5 \
     --timeout 5.0 \
-    --checkpoint data/mythic-body-parts.json \
+    --checkpoint $DATA_DIR/mythic-body-parts.json \
     --update-checkpoint
 
 time autocorns biologist merge \
-    --metadata data/metadata.json \
-    --mythic-body-parts data/mythic-body-parts.json \
-    >data/merged.json
+    --metadata $DATA_DIR/metadata.json \
+    --mythic-body-parts $DATA_DIR/mythic-body-parts.json \
+    >$DATA_DIR/merged.json
 
 time autocorns biologist moonstream-events \
     --start 1651363200 \
+    $END_TIMESTAMP_ARG \
     -n breeding_hatching_leaderboard_events \
     --interval 5.0 \
     --max-retries 6 \
-    -o data/moonstream.json
+    -o $DATA_DIR/moonstream.json
 
 
 time autocorns biologist moonstream-events \
     --start 1651363200 \
+    $END_TIMESTAMP_ARG \
     -n evolution_leaderboard_events \
     --interval 5.0 \
     --max-retries 6 \
-    -o data/evolution.json
+    -o $DATA_DIR/evolution.json
 
 time autocorns biologist sob \
-    --merged data/merged.json \
-    --moonstream data/moonstream.json \
-    --evolution data/evolution.json \
-    >data/leaderboard.json
+    --merged $DATA_DIR/merged.json \
+    --moonstream $DATA_DIR/moonstream.json \
+    --evolution $DATA_DIR/evolution.json \
+    >$DATA_DIR/leaderboard.json

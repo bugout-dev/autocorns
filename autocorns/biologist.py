@@ -389,6 +389,8 @@ def handle_moonstream_events(args: argparse.Namespace) -> None:
     if_modified_since_datetime = datetime.datetime.utcnow()
     if_modified_since = if_modified_since_datetime.strftime("%a, %d %b %Y %H:%M:%S GMT")
     end_timestamp = int(time.time())
+    if args.end is not None:
+        end_timestamp = args.end
 
     request_body = {
         "params": {"start_timestamp": args.start, "end_timestamp": end_timestamp}
@@ -780,6 +782,13 @@ def generate_cli() -> argparse.ArgumentParser:
         type=int,
         help="Starting timestamp for data generation",
     )
+    moonstream_events_parser.add_argument(
+        "--end",
+        type=int,
+        required=False,
+        help="Ending timestamp for data generation",
+    )
+
     moonstream_events_parser.add_argument(
         "--interval", type=float, default=2.0, help="Polling interval for updated data"
     )
