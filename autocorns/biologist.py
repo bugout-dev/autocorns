@@ -434,6 +434,8 @@ def handle_moonstream_events(args: argparse.Namespace) -> None:
 
 def handle_sob(args: argparse.Namespace) -> None:
     milestone_2_cutoff = 29254405
+    milestone_3_cutoff = 30192250
+
     token_metadata_index: Dict[str, Dict[str, Any]] = {}
     with open(args.merged, "r") as ifp:
         for line in ifp:
@@ -459,22 +461,51 @@ def handle_sob(args: argparse.Namespace) -> None:
             if event["block_number"] < milestone_2_cutoff:
                 event["milestone_1"] = 50
                 event["milestone_2"] = 0
-            else:
+                event["milestone_3"] = 0
+            elif event["block_number"] < milestone_3_cutoff:
                 event["milestone_1"] = 0
                 event["milestone_2"] = 20
+                event["milestone_3"] = 0
+            else:
+                event["milestone_1"] = 0
+                event["milestone_2"] = 0
+                event["milestone_3"] = 20
+
+            if metadata is not None and metadata["is_hidden_class"]:
+                if event["block_number"] < milestone_2_cutoff:
+                    event["milestone_1"] += 0
+                    event["milestone_2"] += 0
+                    event["milestone_3"] += 0
+                elif event["block_number"] < milestone_3_cutoff:
+                    event["milestone_1"] += 0
+                    event["milestone_2"] += 0
+                    event["milestone_3"] += 0
+                else:
+                    event["milestone_1"] += 0
+                    event["milestone_2"] += 0
+                    event["milestone_3"] += 30
+
             breeding_events.append(event)
+
         elif event["event_type"] == "hatchingEggs":
             event["milestone_1"] = 0
             event["milestone_2"] = 0
+            event["milestone_3"] = 0
 
             metadata = token_metadata_index.get(event["token"])
             if metadata is not None and metadata["is_mythic"]:
                 if event["block_number"] < milestone_2_cutoff:
                     event["milestone_1"] = 20
                     event["milestone_2"] = 0
-                else:
+                    event["milestone_3"] = 0
+                elif event["block_number"] < milestone_3_cutoff:
                     event["milestone_1"] = 0
                     event["milestone_2"] = 20
+                    event["milestone_3"] = 0
+                else:
+                    event["milestone_1"] = 0
+                    event["milestone_2"] = 0
+                    event["milestone_3"] = 20
 
             hatching_events.append(event)
         else:
@@ -485,9 +516,15 @@ def handle_sob(args: argparse.Namespace) -> None:
         if event["block_number"] < milestone_2_cutoff:
             event["milestone_1"] = 10
             event["milestone_2"] = 50
-        else:
+            event["milestone_3"] = 0
+        elif event["block_number"] < milestone_3_cutoff:
             event["milestone_1"] = 0
             event["milestone_2"] = 50
+            event["milestone_3"] = 0
+        else:
+            event["milestone_1"] = 0
+            event["milestone_2"] = 0
+            event["milestone_3"] = 10
 
         evolution_events.append(event)
 
@@ -498,6 +535,7 @@ def handle_sob(args: argparse.Namespace) -> None:
             player_points[player] = {
                 "milestone_1": 0,
                 "milestone_2": 0,
+                "milestone_3": 0,
                 "total_score": 0,
                 "num_breeds": 0,
                 "num_hatches": 0,
@@ -505,24 +543,33 @@ def handle_sob(args: argparse.Namespace) -> None:
                 "num_evolutions": 0,
                 "num_breeds_1": 0,
                 "num_breeds_2": 0,
+                "num_breeds_3": 0,
                 "num_hatches_1": 0,
                 "num_hatches_2": 0,
+                "num_hatches_3": 0,
                 "num_mythic_hatches_1": 0,
                 "num_mythic_hatches_2": 0,
+                "num_mythic_hatches_3": 0,
                 "num_evolutions_1": 0,
                 "num_evolutions_2": 0,
+                "num_evolutions_3": 0,
+                "num_hidden_class_3": 0,
                 "block_number": event["block_number"],
             }
         player_points[player]["milestone_1"] += event["milestone_1"]
         player_points[player]["milestone_2"] += event["milestone_2"]
+        player_points[player]["milestone_3"] += event["milestone_3"]
         player_points[player]["total_score"] += (
-            event["milestone_1"] + event["milestone_2"]
+            event["milestone_1"] + event["milestone_2"] + event["milestone_3"]
         )
+
         player_points[player]["num_breeds"] += 1
         if event["block_number"] < milestone_2_cutoff:
             player_points[player]["num_breeds_1"] += 1
-        else:
+        elif event["block_number"] < milestone_3_cutoff:
             player_points[player]["num_breeds_2"] += 1
+        else:
+            player_points[player]["num_breeds_3"] += 1
 
     for event in hatching_events:
         player = event["player_wallet"]
@@ -530,6 +577,7 @@ def handle_sob(args: argparse.Namespace) -> None:
             player_points[player] = {
                 "milestone_1": 0,
                 "milestone_2": 0,
+                "milestone_3": 0,
                 "total_score": 0,
                 "num_breeds": 0,
                 "num_hatches": 0,
@@ -537,30 +585,39 @@ def handle_sob(args: argparse.Namespace) -> None:
                 "num_evolutions": 0,
                 "num_breeds_1": 0,
                 "num_breeds_2": 0,
+                "num_breeds_3": 0,
                 "num_hatches_1": 0,
                 "num_hatches_2": 0,
+                "num_hatches_3": 0,
                 "num_mythic_hatches_1": 0,
                 "num_mythic_hatches_2": 0,
+                "num_mythic_hatches_3": 0,
                 "num_evolutions_1": 0,
                 "num_evolutions_2": 0,
+                "num_evolutions_3": 0,
+                "num_hidden_class_3": 0,
                 "block_number": event["block_number"],
             }
         player_points[player]["milestone_1"] += event["milestone_1"]
         player_points[player]["milestone_2"] += event["milestone_2"]
+        player_points[player]["milestone_3"] += event["milestone_3"]
         player_points[player]["total_score"] += (
-            event["milestone_1"] + event["milestone_2"]
+            event["milestone_1"] + event["milestone_2"] + event["milestone_3"]
         )
         player_points[player]["num_hatches"] += 1
         if event["block_number"] < milestone_2_cutoff:
             player_points[player]["num_hatches_1"] += 1
-        else:
+        elif event["block_number"] < milestone_3_cutoff:
             player_points[player]["num_hatches_2"] += 1
+        else:
+            player_points[player]["num_hatches_3"] += 1
 
         player_points[player]["num_mythic_hatches"] += int(
-            event["milestone_1"] + event["milestone_2"] > 0
+            event["milestone_1"] + event["milestone_2"] + event["milestone_3"] > 0
         )
         player_points[player]["num_mythic_hatches_1"] += int(event["milestone_1"] > 0)
         player_points[player]["num_mythic_hatches_2"] += int(event["milestone_2"] > 0)
+        player_points[player]["num_mythic_hatches_3"] += int(event["milestone_3"] > 0)
 
     for event in evolution_events:
         player = event["player_wallet"]
@@ -568,6 +625,7 @@ def handle_sob(args: argparse.Namespace) -> None:
             player_points[player] = {
                 "milestone_1": 0,
                 "milestone_2": 0,
+                "milestone_3": 0,
                 "total_score": 0,
                 "num_breeds": 0,
                 "num_hatches": 0,
@@ -575,23 +633,35 @@ def handle_sob(args: argparse.Namespace) -> None:
                 "num_evolutions": 0,
                 "num_breeds_1": 0,
                 "num_breeds_2": 0,
+                "num_breeds_3": 0,
                 "num_hatches_1": 0,
                 "num_hatches_2": 0,
+                "num_hatches_3": 0,
                 "num_mythic_hatches_1": 0,
                 "num_mythic_hatches_2": 0,
+                "num_mythic_hatches_3": 0,
                 "num_evolutions_1": 0,
                 "num_evolutions_2": 0,
+                "num_evolutions_3": 0,
+                "num_hidden_class_3": 0,
                 "block_number": event["block_number"],
             }
+
         player_points[player]["milestone_1"] += event["milestone_1"]
         player_points[player]["milestone_2"] += event["milestone_2"]
-        player_points[player]["total_score"] += event["milestone_2"]
+        player_points[player]["milestone_3"] += event["milestone_3"]
+        player_points[player]["total_score"] += (
+            event["milestone_2"] + event["milestone_3"]
+        )
+
         player_points[player]["num_evolutions"] += 1
         if event["block_number"] < milestone_2_cutoff:
             player_points[player]["num_evolutions_1"] += 1
             player_points[player]["num_evolutions_2"] += 1
-        else:
+        elif event["block_number"] < milestone_3_cutoff:
             player_points[player]["num_evolutions_2"] += 1
+        else:
+            player_points[player]["num_evolutions_3"] += 1
 
     scores: List[Dict[str, Any]] = []
     for player, points in player_points.items():
