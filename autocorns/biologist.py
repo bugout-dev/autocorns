@@ -471,7 +471,11 @@ def handle_sob(args: argparse.Namespace) -> None:
                 event["milestone_2"] = 0
                 event["milestone_3"] = 20
 
+            event["is_hidden_class"] = 0
+            metadata = token_metadata_index.get(event["token"])
             if metadata is not None and metadata["is_hidden_class"]:
+                event["is_hidden_class"] = 1
+
                 if event["block_number"] < milestone_2_cutoff:
                     event["milestone_1"] += 0
                     event["milestone_2"] += 0
@@ -570,6 +574,7 @@ def handle_sob(args: argparse.Namespace) -> None:
             player_points[player]["num_breeds_2"] += 1
         else:
             player_points[player]["num_breeds_3"] += 1
+            player_points[player]["num_hidden_class_3"] += event["is_hidden_class"]
 
     for event in hatching_events:
         player = event["player_wallet"]
