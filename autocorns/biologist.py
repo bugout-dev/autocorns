@@ -4,6 +4,7 @@ import csv
 import datetime
 from enum import Flag
 import json
+from lib2to3.pgen2 import token
 import os
 import sys
 import time
@@ -93,7 +94,6 @@ def unicorn_metadata(
 
     tokens_metadata = []
 
-    print(f"Submitting {len(token_ids)} calls")
     calls_progress_bar = tqdm(
         total=len(token_ids),
         desc="Submitting requests for unicorn classes",
@@ -159,12 +159,17 @@ def unicorn_mythic_body_parts(
     ]:
         with brownie.multicall:
             for item in dnas_chunk:
+                if item["dna"] is None or item["dna"] == "" or item["dna"] == "None":
+                    tokens_metadata.append(None)
+                    continue
                 token_data = contract.contract.getUnicornBodyParts(item["dna"])
                 tokens_metadata.append(token_data)
                 mythic_progress_bar.update()
 
     for item, token_data in zip(dnas, tokens_metadata):
-        print(token_data)
+        if token_data is None:
+            # Token item['token_id']} has no DNA
+            continue
         try:
             result = {
                 **item,
@@ -237,9 +242,9 @@ def handle_mythic_body_parts(args: argparse.Namespace) -> None:
         json.dump(result, fp=sys.stdout)
         print("")
 
-    # for error in errors:
-    #     json.dump(error, fp=sys.stderr)
-    #     print("", file=sys.stderr)
+    for error in errors:
+        json.dump(error, fp=sys.stderr)
+        print("", file=sys.stderr)
 
 
 def handle_merge(args: argparse.Namespace) -> None:
@@ -311,7 +316,9 @@ def handle_moonstream_events(args: argparse.Namespace) -> None:
 
     while not success and attempts < args.max_retries:
         attempts += 1
-        response = requests.post(request_url, json=request_body, headers=headers)
+        response = requests.post(
+            request_url, json=request_body, headers=headers, timeout=10
+        )
         response.raise_for_status()
         response_body = response.json()
         data_url = response_body["url"]
@@ -323,9 +330,15 @@ def handle_moonstream_events(args: argparse.Namespace) -> None:
         while keep_going:
             time.sleep(args.interval)
             num_retries += 1
-            data_response = requests.get(
-                data_url, headers={"If-Modified-Since": if_modified_since}
-            )
+            try:
+                data_response = requests.get(
+                    data_url,
+                    headers={"If-Modified-Since": if_modified_since},
+                    timeout=10,
+                )
+            except:
+                print(f"Failed to get data from {data_url}", file=sys.stderr)
+                continue
             print(f"Status code: {data_response.status_code}", file=sys.stderr)
             print(
                 f"Last-Modified: {data_response.headers['Last-Modified']}",
