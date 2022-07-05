@@ -12,6 +12,23 @@ then
     exit 1
 fi
 
+if [ -z "$DATA_DIR" ]
+then
+    echo "Set DATA_DIR environment variable"
+    exit 1
+fi
+
+BLOCK_NUMBER_ARG=""
+if [ ! -z "$BLOCK_NUMBER" ]
+then
+    BLOCK_NUMBER_ARG="--block-number $BLOCK_NUMBER"
+fi
+
+END_TIMESTAMP_ARG=""
+if [ ! -z "$END_TIMESTAMP" ]
+then
+    END_TIMESTAMP_ARG="--end $END_TIMESTAMP"
+fi
 
 CU_ADDRESS=0xdC0479CC5BbA033B3e7De9F178607150B3AbCe1f
 
@@ -25,16 +42,13 @@ echo $DATA_DIR
 
 set -e
 
-ls ./
-
-mkdir -p $DATA_DIR
-
-TOTAL_SUPPLY=$(autocorns biologist total-supply --network $BROWNIE_NETWORK --address $CU_ADDRESS --block-number $SNAPSHOT_BLOCK_NUMBER)
+TOTAL_SUPPLY=$(autocorns biologist total-supply --network $BROWNIE_NETWORK $BLOCK_NUMBER_ARG --address $CU_ADDRESS)
 
 echo "Total supply: $TOTAL_SUPPLY"
 
 time autocorns biologist dnas \
     --network $BROWNIE_NETWORK \
+    $BLOCK_NUMBER_ARG \
     --address $CU_ADDRESS \
     --start 1 \
     --end $TOTAL_SUPPLY \
@@ -43,6 +57,7 @@ time autocorns biologist dnas \
 
 time autocorns biologist metadata \
     --network $BROWNIE_NETWORK \
+    $BLOCK_NUMBER_ARG \
     --address $CU_ADDRESS \
     --start 1 \
     --end $TOTAL_SUPPLY \
@@ -52,6 +67,7 @@ time autocorns biologist metadata \
 
 time autocorns biologist mythic-body-parts \
     --network $BROWNIE_NETWORK \
+    $BLOCK_NUMBER_ARG \
     --address $CU_ADDRESS \
     --dnas $DATA_DIR/dnas.json \
     --block-number $SNAPSHOT_BLOCK_NUMBER \
@@ -64,6 +80,7 @@ time autocorns biologist merge \
 
 time autocorns biologist moonstream-events \
     --start 1651363200 \
+    $END_TIMESTAMP_ARG \
     -n breeding_hatching_leaderboard_events \
     --interval 5.0 \
     --max-retries 6 \
