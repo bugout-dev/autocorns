@@ -1,29 +1,55 @@
 import argparse
 from concurrent.futures import as_completed, ThreadPoolExecutor, Future
-import csv
 import datetime
-from enum import Flag
 import json
-from lib2to3.pgen2 import token
 import os
 import sys
 import time
 from typing import Any, Dict, List, Optional, Set, Tuple
+import traceback
+
 
 
 import brownie
-from brownie import network
+from brownie import network, web3
 from brownie.network import chain
 import requests
 from tqdm import tqdm
 
 from . import ERC721WithDiamondStorage
 from . import MetadataFacet
+from . import Multicall2
 from . import StatsFacet
 from eth_typing.evm import ChecksumAddress
 
 
 CALL_CHUNK_SIZE = 500
+
+
+Multicall2_address = '0xc8E51042792d7405184DfCa245F2d27B94D013b6'
+
+
+def make_multicall(multicall_method: Any, brownie_contract_method: Any, address: web3.toChecksumAddress, inputs: List[Any]) -> Any:
+    multicall_result = multicall_method.call(False, # success not required
+        [
+            (
+                address,
+                brownie_contract_method.encode_input(input),
+            )
+            for input in inputs
+        ]
+    )
+
+    results = []
+
+    # Handle the case with not successful calls
+    for encoded_data in multicall_result:
+        if encoded_data[0]:
+            results.append(brownie_contract_method.decode_output(encoded_data[1]))
+        else:
+            print(encoded_data, file=sys.stderr)
+            results.append(None)
+    return results
 
 
 def unicorn_dnas(
@@ -47,17 +73,27 @@ def unicorn_dnas(
         desc="Retrieving unicorn DNAs",
     )
 
-    brownie.multicall(address=contract_address, block_identifier=block_number)
+    CALL_CHUNK_SIZE_DNA = CALL_CHUNK_SIZE
+
+    multicaller = Multicall2.Multicall2(Multicall2_address)
+
+    multicall_method = multicaller.contract.tryAggregate
+    #multicall_method = multicaller.contract.aggregate
 
     for tokens_ids_chunk in [
-        token_ids[i : i + CALL_CHUNK_SIZE]
-        for i in range(0, len(token_ids), CALL_CHUNK_SIZE)
+        token_ids[i : i + CALL_CHUNK_SIZE_DNA]
+        for i in range(0, len(token_ids), CALL_CHUNK_SIZE_DNA)
     ]:
-        with brownie.multicall:
-            for token_id in tokens_ids_chunk:
-                token_data = contract.contract.getDNA(token_id)
-                tokens_dnas.append(token_data)
-                dna_progress_bar.update()
+        while True:
+            try:
+                make_multicall_result = make_multicall(multicall_method,contract.contract.getDNA, contract_address, tokens_ids_chunk)
+                tokens_dnas.extend(make_multicall_result)
+                dna_progress_bar.update(len(tokens_ids_chunk))
+                break
+            except ValueError:
+                time.sleep(1)
+                continue
+
 
     for token_id, token_dna in zip(token_ids, tokens_dnas):
         try:
@@ -68,6 +104,7 @@ def unicorn_dnas(
             }
             results.append(result)
         except Exception as e:
+            #print(token_data, file=sys.stderr)
             error = {
                 "token_id": token_id,
                 "block_number": block_number,
@@ -99,17 +136,24 @@ def unicorn_metadata(
         desc="Submitting requests for unicorn classes",
     )
 
-    brownie.multicall(address=contract_address, block_identifier=block_number)
+    multicaller = Multicall2.Multicall2(Multicall2_address)
+
+    multicall_method = multicaller.contract.tryAggregate
+    
 
     for tokens_ids_chunk in [
         token_ids[i : i + CALL_CHUNK_SIZE]
         for i in range(0, len(token_ids), CALL_CHUNK_SIZE)
     ]:
-        with brownie.multicall:
-            for token_id in tokens_ids_chunk:
-                token_data = contract.contract.getUnicornMetadata(token_id)
-                tokens_metadata.append(token_data)
-                calls_progress_bar.update()
+        while True:
+            try:
+                make_multicall_result = make_multicall(multicall_method, contract.contract.getUnicornMetadata, contract_address, tokens_ids_chunk)
+                tokens_metadata.extend(make_multicall_result)
+                calls_progress_bar.update(len(tokens_ids_chunk))
+                break
+            except ValueError:
+                time.sleep(1)
+                continue
 
     for token_id, token_data in zip(token_ids, tokens_metadata):
         try:
@@ -124,7 +168,7 @@ def unicorn_metadata(
             error = {
                 "token_id": token_id,
                 "block_number": block_number,
-                "error": f"Failed to retrieve DNA: {str(e)}",
+                "error": f"Failed retrive unicorns metadata: {str(e)}",
             }
             errors.append(error)
     return results, errors
@@ -152,21 +196,36 @@ def unicorn_mythic_body_parts(
 
     block_number = dnas[0]["block_number"]
 
-    brownie.multicall(address=contract_address, block_identifier=block_number)
+
+    multicaller = Multicall2.Multicall2(Multicall2_address)
+
+    multicall_method = multicaller.contract.tryAggregate
+
+
+    dnas_is_present = [dna for dna in dnas if dna["dna"] is not None and dna["dna"] != "None"]
 
     for dnas_chunk in [
-        dnas[i : i + CALL_CHUNK_SIZE] for i in range(0, len(dnas), CALL_CHUNK_SIZE)
+        dnas_is_present[i : i + CALL_CHUNK_SIZE] for i in range(0, len(dnas), CALL_CHUNK_SIZE)
     ]:
-        with brownie.multicall:
-            for item in dnas_chunk:
-                if item["dna"] is None or item["dna"] == "" or item["dna"] == "None":
-                    tokens_metadata.append(None)
-                    continue
-                token_data = contract.contract.getUnicornBodyParts(item["dna"])
-                tokens_metadata.append(token_data)
-                mythic_progress_bar.update()
+        while True:
+            try:
 
-    for item, token_data in zip(dnas, tokens_metadata):
+                send_to_multicall_dnas = [dna["dna"] for dna in dnas_chunk ]
+
+                make_multicall_result = make_multicall(multicall_method, contract.contract.getUnicornBodyParts, contract_address, send_to_multicall_dnas)
+                tokens_metadata.extend(make_multicall_result)
+                mythic_progress_bar.update(len(send_to_multicall_dnas))
+                break
+            except ValueError:
+                time.sleep(1)
+                continue
+            except Exception as e:
+                print(e, file=sys.stderr)
+                print(send_to_multicall_dnas, file=sys.stderr)
+                raise e
+                    
+
+    for item, token_data in zip(dnas_is_present, tokens_metadata):
         if token_data is None:
             # Token item['token_id']} has no DNA
             continue
@@ -179,7 +238,7 @@ def unicorn_mythic_body_parts(
         except Exception as e:
             error = {
                 **item,
-                "error": f"Failed to retrieve DNA: {str(e)}",
+                "error": f"Failed to retrieve num_mythic_body_parts: {str(e)}",
             }
             errors.append(error)
 
