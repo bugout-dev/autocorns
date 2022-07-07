@@ -32,8 +32,6 @@ fi
 
 CU_ADDRESS=0xdC0479CC5BbA033B3e7De9F178607150B3AbCe1f
 
-SNAPSHOT_BLOCK_NUMBER=29254405
-
 END_MOONSTREAM_TIMESTAMP=1654560000
 
 DATA_DIR="./breeding-milestone-snapshot"
@@ -52,7 +50,6 @@ time autocorns biologist dnas \
     --address $CU_ADDRESS \
     --start 1 \
     --end $TOTAL_SUPPLY \
-    --block-number $SNAPSHOT_BLOCK_NUMBER \
     >$DATA_DIR/dnas.json
 
 time autocorns biologist metadata \
@@ -61,7 +58,6 @@ time autocorns biologist metadata \
     --address $CU_ADDRESS \
     --start 1 \
     --end $TOTAL_SUPPLY \
-    --block-number $SNAPSHOT_BLOCK_NUMBER \
     >$DATA_DIR/metadata.json
 
 
@@ -70,7 +66,6 @@ time autocorns biologist mythic-body-parts \
     $BLOCK_NUMBER_ARG \
     --address $CU_ADDRESS \
     --dnas $DATA_DIR/dnas.json \
-    --block-number $SNAPSHOT_BLOCK_NUMBER \
     >$DATA_DIR/mythic-body-parts.json
 
 time autocorns biologist merge \
