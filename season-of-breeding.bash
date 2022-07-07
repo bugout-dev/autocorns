@@ -32,6 +32,12 @@ fi
 
 CU_ADDRESS=0xdC0479CC5BbA033B3e7De9F178607150B3AbCe1f
 
+END_MOONSTREAM_TIMESTAMP=1654560000
+
+DATA_DIR="./breeding-milestone-snapshot"
+
+echo $DATA_DIR
+
 set -e
 
 TOTAL_SUPPLY=$(autocorns biologist total-supply --network $BROWNIE_NETWORK $BLOCK_NUMBER_ARG --address $CU_ADDRESS)
@@ -44,10 +50,7 @@ time autocorns biologist dnas \
     --address $CU_ADDRESS \
     --start 1 \
     --end $TOTAL_SUPPLY \
-    --num-workers 5 \
-    --timeout 5.0 \
-    --checkpoint $DATA_DIR/dnas.json \
-    --update-checkpoint
+    >$DATA_DIR/dnas.json
 
 time autocorns biologist metadata \
     --network $BROWNIE_NETWORK \
@@ -55,10 +58,7 @@ time autocorns biologist metadata \
     --address $CU_ADDRESS \
     --start 1 \
     --end $TOTAL_SUPPLY \
-    --num-workers 5 \
-    --timeout 5.0 \
-    --checkpoint $DATA_DIR/metadata.json \
-    --update-checkpoint
+    >$DATA_DIR/metadata.json
 
 
 time autocorns biologist mythic-body-parts \
@@ -66,10 +66,7 @@ time autocorns biologist mythic-body-parts \
     $BLOCK_NUMBER_ARG \
     --address $CU_ADDRESS \
     --dnas $DATA_DIR/dnas.json \
-    --num-workers 5 \
-    --timeout 5.0 \
-    --checkpoint $DATA_DIR/mythic-body-parts.json \
-    --update-checkpoint
+    >$DATA_DIR/mythic-body-parts.json
 
 time autocorns biologist merge \
     --metadata $DATA_DIR/metadata.json \
@@ -84,10 +81,9 @@ time autocorns biologist moonstream-events \
     --max-retries 6 \
     -o $DATA_DIR/moonstream.json
 
-
 time autocorns biologist moonstream-events \
     --start 1651363200 \
-    $END_TIMESTAMP_ARG \
+    --end $END_MOONSTREAM_TIMESTAMP \
     -n evolution_leaderboard_events \
     --interval 5.0 \
     --max-retries 6 \
