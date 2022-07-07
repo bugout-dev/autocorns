@@ -1,16 +1,12 @@
 import argparse
-from concurrent.futures import as_completed, ThreadPoolExecutor, Future
 import datetime
 import json
 import os
 import sys
 import time
-from typing import Any, Dict, List, Optional, Set, Tuple
-import traceback
+from typing import Any, Dict, List, Optional, Tuple
 
 
-
-import brownie
 from brownie import network, web3
 from brownie.network import chain
 import requests
