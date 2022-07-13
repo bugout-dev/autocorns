@@ -25,7 +25,7 @@ CALL_CHUNK_SIZE = 500
 Multicall2_address = '0xc8E51042792d7405184DfCa245F2d27B94D013b6'
 
 
-def make_multicall(multicall_method: Any, brownie_contract_method: Any, address: web3.toChecksumAddress, inputs: List[Any]) -> Any:
+def make_multicall(multicall_method: Any, brownie_contract_method: Any, address: web3.toChecksumAddress, inputs: List[Any], block_number: str = "latest") -> Any:
     multicall_result = multicall_method.call(False, # success not required
         [
             (
@@ -33,7 +33,7 @@ def make_multicall(multicall_method: Any, brownie_contract_method: Any, address:
                 brownie_contract_method.encode_input(input),
             )
             for input in inputs
-        ]
+        ], block_identifier=block_number,
     )
 
     results = []
@@ -82,7 +82,7 @@ def unicorn_dnas(
     ]:
         while True:
             try:
-                make_multicall_result = make_multicall(multicall_method,contract.contract.getDNA, contract_address, tokens_ids_chunk)
+                make_multicall_result = make_multicall(multicall_method,contract.contract.getDNA, contract_address, tokens_ids_chunk, block_number=block_number)
                 tokens_dnas.extend(make_multicall_result)
                 dna_progress_bar.update(len(tokens_ids_chunk))
                 break
@@ -143,7 +143,7 @@ def unicorn_metadata(
     ]:
         while True:
             try:
-                make_multicall_result = make_multicall(multicall_method, contract.contract.getUnicornMetadata, contract_address, tokens_ids_chunk)
+                make_multicall_result = make_multicall(multicall_method, contract.contract.getUnicornMetadata, contract_address, tokens_ids_chunk, block_number=block_number)
                 tokens_metadata.extend(make_multicall_result)
                 calls_progress_bar.update(len(tokens_ids_chunk))
                 break
@@ -208,7 +208,7 @@ def unicorn_mythic_body_parts(
 
                 send_to_multicall_dnas = [dna["dna"] for dna in dnas_chunk ]
 
-                make_multicall_result = make_multicall(multicall_method, contract.contract.getUnicornBodyParts, contract_address, send_to_multicall_dnas)
+                make_multicall_result = make_multicall(multicall_method, contract.contract.getUnicornBodyParts, contract_address, send_to_multicall_dnas, block_number=block_number)
                 tokens_metadata.extend(make_multicall_result)
                 mythic_progress_bar.update(len(send_to_multicall_dnas))
                 break
