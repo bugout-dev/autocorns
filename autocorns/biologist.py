@@ -113,7 +113,6 @@ def unicorn_dnas(
             }
             results.append(result)
         except Exception as e:
-            # print(token_data, file=sys.stderr)
             error = {
                 "token_id": token_id,
                 "block_number": block_number,

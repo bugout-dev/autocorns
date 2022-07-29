@@ -32,8 +32,6 @@ fi
 
 CU_ADDRESS=0xdC0479CC5BbA033B3e7De9F178607150B3AbCe1f
 
-echo $DATA_DIR
-
 set -e
 
 TOTAL_SUPPLY=$(autocorns biologist total-supply --network $BROWNIE_NETWORK $BLOCK_NUMBER_ARG --address $CU_ADDRESS)
