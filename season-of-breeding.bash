@@ -32,10 +32,6 @@ fi
 
 CU_ADDRESS=0xdC0479CC5BbA033B3e7De9F178607150B3AbCe1f
 
-END_MOONSTREAM_TIMESTAMP=1654560000
-
-DATA_DIR="./breeding-milestone-snapshot"
-
 echo $DATA_DIR
 
 set -e
@@ -83,7 +79,7 @@ time autocorns biologist moonstream-events \
 
 time autocorns biologist moonstream-events \
     --start 1651363200 \
-    --end $END_MOONSTREAM_TIMESTAMP \
+    $END_TIMESTAMP_ARG \
     -n evolution_leaderboard_events \
     --interval 5.0 \
     --max-retries 6 \
