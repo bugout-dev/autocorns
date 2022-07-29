@@ -22,18 +22,26 @@ from eth_typing.evm import ChecksumAddress
 CALL_CHUNK_SIZE = 500
 
 
-Multicall2_address = '0xc8E51042792d7405184DfCa245F2d27B94D013b6'
+Multicall2_address = "0xc8E51042792d7405184DfCa245F2d27B94D013b6"
 
 
-def make_multicall(multicall_method: Any, brownie_contract_method: Any, address: web3.toChecksumAddress, inputs: List[Any], block_number: str = "latest") -> Any:
-    multicall_result = multicall_method.call(False, # success not required
+def make_multicall(
+    multicall_method: Any,
+    brownie_contract_method: Any,
+    address: web3.toChecksumAddress,
+    inputs: List[Any],
+    block_number: str = "latest",
+) -> Any:
+    multicall_result = multicall_method.call(
+        False,  # success not required
         [
             (
                 address,
                 brownie_contract_method.encode_input(input),
             )
             for input in inputs
-        ], block_identifier=block_number,
+        ],
+        block_identifier=block_number,
     )
 
     results = []
@@ -74,7 +82,7 @@ def unicorn_dnas(
     multicaller = Multicall2.Multicall2(Multicall2_address)
 
     multicall_method = multicaller.contract.tryAggregate
-    #multicall_method = multicaller.contract.aggregate
+    # multicall_method = multicaller.contract.aggregate
 
     for tokens_ids_chunk in [
         token_ids[i : i + CALL_CHUNK_SIZE_DNA]
@@ -82,14 +90,19 @@ def unicorn_dnas(
     ]:
         while True:
             try:
-                make_multicall_result = make_multicall(multicall_method,contract.contract.getDNA, contract_address, tokens_ids_chunk, block_number=block_number)
+                make_multicall_result = make_multicall(
+                    multicall_method,
+                    contract.contract.getDNA,
+                    contract_address,
+                    tokens_ids_chunk,
+                    block_number=block_number,
+                )
                 tokens_dnas.extend(make_multicall_result)
                 dna_progress_bar.update(len(tokens_ids_chunk))
                 break
             except ValueError:
                 time.sleep(1)
                 continue
-
 
     for token_id, token_dna in zip(token_ids, tokens_dnas):
         try:
@@ -100,7 +113,7 @@ def unicorn_dnas(
             }
             results.append(result)
         except Exception as e:
-            #print(token_data, file=sys.stderr)
+            # print(token_data, file=sys.stderr)
             error = {
                 "token_id": token_id,
                 "block_number": block_number,
@@ -135,7 +148,6 @@ def unicorn_metadata(
     multicaller = Multicall2.Multicall2(Multicall2_address)
 
     multicall_method = multicaller.contract.tryAggregate
-    
 
     for tokens_ids_chunk in [
         token_ids[i : i + CALL_CHUNK_SIZE]
@@ -143,7 +155,13 @@ def unicorn_metadata(
     ]:
         while True:
             try:
-                make_multicall_result = make_multicall(multicall_method, contract.contract.getUnicornMetadata, contract_address, tokens_ids_chunk, block_number=block_number)
+                make_multicall_result = make_multicall(
+                    multicall_method,
+                    contract.contract.getUnicornMetadata,
+                    contract_address,
+                    tokens_ids_chunk,
+                    block_number=block_number,
+                )
                 tokens_metadata.extend(make_multicall_result)
                 calls_progress_bar.update(len(tokens_ids_chunk))
                 break
@@ -192,23 +210,30 @@ def unicorn_mythic_body_parts(
 
     block_number = dnas[0]["block_number"]
 
-
     multicaller = Multicall2.Multicall2(Multicall2_address)
 
     multicall_method = multicaller.contract.tryAggregate
 
-
-    dnas_is_present = [dna for dna in dnas if dna["dna"] is not None and dna["dna"] != "None"]
+    dnas_is_present = [
+        dna for dna in dnas if dna["dna"] is not None and dna["dna"] != "None"
+    ]
 
     for dnas_chunk in [
-        dnas_is_present[i : i + CALL_CHUNK_SIZE] for i in range(0, len(dnas), CALL_CHUNK_SIZE)
+        dnas_is_present[i : i + CALL_CHUNK_SIZE]
+        for i in range(0, len(dnas), CALL_CHUNK_SIZE)
     ]:
         while True:
             try:
 
-                send_to_multicall_dnas = [dna["dna"] for dna in dnas_chunk ]
+                send_to_multicall_dnas = [dna["dna"] for dna in dnas_chunk]
 
-                make_multicall_result = make_multicall(multicall_method, contract.contract.getUnicornBodyParts, contract_address, send_to_multicall_dnas, block_number=block_number)
+                make_multicall_result = make_multicall(
+                    multicall_method,
+                    contract.contract.getUnicornBodyParts,
+                    contract_address,
+                    send_to_multicall_dnas,
+                    block_number=block_number,
+                )
                 tokens_metadata.extend(make_multicall_result)
                 mythic_progress_bar.update(len(send_to_multicall_dnas))
                 break
@@ -219,7 +244,6 @@ def unicorn_mythic_body_parts(
                 print(e, file=sys.stderr)
                 print(send_to_multicall_dnas, file=sys.stderr)
                 raise e
-                    
 
     for item, token_data in zip(dnas_is_present, tokens_metadata):
         if token_data is None:
