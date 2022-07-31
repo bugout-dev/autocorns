@@ -1,33 +1,65 @@
 import argparse
-from concurrent.futures import as_completed, ThreadPoolExecutor, Future
-import csv
 import datetime
 import json
 import os
 import sys
 import time
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
-from brownie import network
+
+from brownie import network, web3
 from brownie.network import chain
 import requests
 from tqdm import tqdm
 
 from . import ERC721WithDiamondStorage
 from . import MetadataFacet
+from . import Multicall2
 from . import StatsFacet
 from eth_typing.evm import ChecksumAddress
+
+
+CALL_CHUNK_SIZE = 500
+
+
+Multicall2_address = "0xc8E51042792d7405184DfCa245F2d27B94D013b6"
+
+
+def make_multicall(
+    multicall_method: Any,
+    brownie_contract_method: Any,
+    address: web3.toChecksumAddress,
+    inputs: List[Any],
+    block_number: str = "latest",
+) -> Any:
+    multicall_result = multicall_method.call(
+        False,  # success not required
+        [
+            (
+                address,
+                brownie_contract_method.encode_input(input),
+            )
+            for input in inputs
+        ],
+        block_identifier=block_number,
+    )
+
+    results = []
+
+    # Handle the case with not successful calls
+    for encoded_data in multicall_result:
+        if encoded_data[0]:
+            results.append(brownie_contract_method.decode_output(encoded_data[1]))
+        else:
+            print(encoded_data, file=sys.stderr)
+            results.append(None)
+    return results
 
 
 def unicorn_dnas(
     contract_address: ChecksumAddress,
     token_ids: List[int],
     block_number: Optional[int] = None,
-    num_workers: int = 1,
-    timeout: float = 30.0,
-    checkpoint_file: Optional[str] = None,
-    # 43200 blocks is roughly 24 hours worth of Polygon blocks
-    cache_liveness: int = 43200,
 ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     if block_number is None:
         block_number = len(chain) - 1
@@ -35,52 +67,49 @@ def unicorn_dnas(
     contract = MetadataFacet.MetadataFacet(contract_address)
 
     results: List[Dict[str, Any]] = []
-    checkpointed_token_ids: Set[int] = set()
-    if checkpoint_file is not None:
-        with open(checkpoint_file, "r") as ifp:
-            for line in ifp:
-                stripped_line = line.strip()
-                if stripped_line:
-                    result = json.loads(stripped_line)
-                    result_dna = result.get("dna")
-                    if (
-                        result_dna is not None
-                        and result_dna != "2"
-                        and result["block_number"] >= block_number - cache_liveness
-                    ):
-                        results.append(result)
-                        checkpointed_token_ids.add(result["token_id"])
 
     errors: List[Dict[str, Any]] = []
 
-    submission_progress_bar = tqdm(
-        total=len(token_ids) - len(checkpointed_token_ids),
-        desc="Submitting requests for unicorn DNAs",
-    )
+    tokens_dnas = []
 
     dna_progress_bar = tqdm(
-        total=len(token_ids) - len(checkpointed_token_ids),
+        total=len(token_ids),
         desc="Retrieving unicorn DNAs",
     )
 
-    jobs: Dict[Future, int] = {}
-    with ThreadPoolExecutor(max_workers=num_workers) as executor:
-        for token_id in token_ids:
-            if token_id in checkpointed_token_ids:
-                continue
-            submission_progress_bar.update()
-            future = executor.submit(contract.get_dna, token_id, block_number)
-            jobs[future] = token_id
+    CALL_CHUNK_SIZE_DNA = CALL_CHUNK_SIZE
 
-    for future in as_completed(jobs, timeout):
-        dna_progress_bar.update()
-        token_id = jobs[future]
+    multicaller = Multicall2.Multicall2(Multicall2_address)
+
+    multicall_method = multicaller.contract.tryAggregate
+    # multicall_method = multicaller.contract.aggregate
+
+    for tokens_ids_chunk in [
+        token_ids[i : i + CALL_CHUNK_SIZE_DNA]
+        for i in range(0, len(token_ids), CALL_CHUNK_SIZE_DNA)
+    ]:
+        while True:
+            try:
+                make_multicall_result = make_multicall(
+                    multicall_method,
+                    contract.contract.getDNA,
+                    contract_address,
+                    tokens_ids_chunk,
+                    block_number=block_number,
+                )
+                tokens_dnas.extend(make_multicall_result)
+                dna_progress_bar.update(len(tokens_ids_chunk))
+                break
+            except ValueError:
+                time.sleep(1)
+                continue
+
+    for token_id, token_dna in zip(token_ids, tokens_dnas):
         try:
-            dna = future.result()
             result = {
                 "token_id": token_id,
                 "block_number": block_number,
-                "dna": str(dna),
+                "dna": str(token_dna),
             }
             results.append(result)
         except Exception as e:
@@ -98,9 +127,6 @@ def unicorn_metadata(
     contract_address: ChecksumAddress,
     token_ids: List[int],
     block_number: Optional[int] = None,
-    num_workers: int = 1,
-    timeout: float = 30.0,
-    checkpoint_file: Optional[str] = None,
 ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     if block_number is None:
         block_number = len(chain) - 1
@@ -108,63 +134,56 @@ def unicorn_metadata(
     contract = StatsFacet.StatsFacet(contract_address)
 
     results: List[Dict[str, Any]] = []
-    checkpointed_token_ids: Set[int] = set()
-    if checkpoint_file is not None:
-        with open(checkpoint_file, "r") as ifp:
-            for line in ifp:
-                stripped_line = line.strip()
-                if stripped_line:
-                    result = json.loads(stripped_line)
-                    if (
-                        result.get("class_number") is not None
-                        and result.get("lifecycle_stage") is not None
-                    ):
-                        results.append(result)
-                        checkpointed_token_ids.add(result["token_id"])
 
     errors: List[Dict[str, Any]] = []
 
-    submission_progress_bar = tqdm(
-        total=len(token_ids) - len(checkpointed_token_ids),
+    tokens_metadata = []
+
+    calls_progress_bar = tqdm(
+        total=len(token_ids),
         desc="Submitting requests for unicorn classes",
     )
 
-    metadata_progress_bar = tqdm(
-        total=len(token_ids) - len(checkpointed_token_ids),
-        desc="Retrieving unicorn classes",
-    )
+    multicaller = Multicall2.Multicall2(Multicall2_address)
 
-    jobs: Dict[Future, int] = {}
-    with ThreadPoolExecutor(max_workers=num_workers) as executor:
-        for token_id in token_ids:
-            if token_id in checkpointed_token_ids:
+    multicall_method = multicaller.contract.tryAggregate
+
+    for tokens_ids_chunk in [
+        token_ids[i : i + CALL_CHUNK_SIZE]
+        for i in range(0, len(token_ids), CALL_CHUNK_SIZE)
+    ]:
+        while True:
+            try:
+                make_multicall_result = make_multicall(
+                    multicall_method,
+                    contract.contract.getUnicornMetadata,
+                    contract_address,
+                    tokens_ids_chunk,
+                    block_number=block_number,
+                )
+                tokens_metadata.extend(make_multicall_result)
+                calls_progress_bar.update(len(tokens_ids_chunk))
+                break
+            except ValueError:
+                time.sleep(1)
                 continue
-            submission_progress_bar.update()
-            future = executor.submit(
-                contract.get_unicorn_metadata, token_id, block_number
-            )
-            jobs[future] = token_id
 
-    for future in as_completed(jobs, timeout):
-        metadata_progress_bar.update()
-        token_id = jobs[future]
+    for token_id, token_data in zip(token_ids, tokens_metadata):
         try:
-            metadata = future.result()
             result = {
                 "token_id": token_id,
                 "block_number": block_number,
-                "lifecycle_stage": metadata[3],
-                "class_number": metadata[-2],
+                "lifecycle_stage": token_data[3],
+                "class_number": token_data[-2],
             }
             results.append(result)
         except Exception as e:
             error = {
                 "token_id": token_id,
                 "block_number": block_number,
-                "error": f"Failed to retrieve DNA: {str(e)}",
+                "error": f"Failed retrive unicorns metadata: {str(e)}",
             }
             errors.append(error)
-
     return results, errors
 
 
@@ -172,9 +191,6 @@ def unicorn_mythic_body_parts(
     contract_address: ChecksumAddress,
     dnas: List[Dict[str, Any]],
     block_number: Optional[int] = None,
-    num_workers: int = 1,
-    timeout: float = 30.0,
-    checkpoint_file: Optional[str] = None,
 ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     if block_number is None:
         block_number = len(chain) - 1
@@ -182,65 +198,66 @@ def unicorn_mythic_body_parts(
     results: List[Dict[str, Any]] = []
     errors: List[Dict[str, Any]] = []
 
-    dnas_index = {item["token_id"]: item for item in dnas}
-
-    checkpointed_token_ids: Set[int] = set()
-    if checkpoint_file is not None:
-        with open(checkpoint_file, "r") as ifp:
-            for line in ifp:
-                stripped_line = line.strip()
-                if stripped_line:
-                    result = json.loads(stripped_line)
-                    if result["token_id"] not in dnas_index:
-                        continue
-                    dna_result = dnas_index[result["token_id"]]
-                    if (
-                        result.get("num_mythic_body_parts") is not None
-                        and result.get("dna") != "2"
-                        and dna_result["block_number"] <= result["block_number"]
-                    ):
-                        results.append(result)
-                        checkpointed_token_ids.add(result["token_id"])
-
-    submission_progress_bar = tqdm(
-        total=len(dnas) - len(checkpointed_token_ids),
-        desc="Submitting requests for number of unicorn mythic body parts",
-    )
+    tokens_metadata = []
 
     mythic_progress_bar = tqdm(
-        total=len(dnas) - len(checkpointed_token_ids),
+        total=len(dnas),
         desc="Retrieving number of unicorn mythic body parts",
     )
 
     contract = StatsFacet.StatsFacet(contract_address)
 
-    jobs: Dict[Future, int] = {}
-    with ThreadPoolExecutor(max_workers=num_workers) as executor:
-        for item in dnas:
-            if item["token_id"] in checkpointed_token_ids:
-                continue
-            submission_progress_bar.update()
-            future = executor.submit(
-                contract.get_unicorn_body_parts,
-                item["dna"],
-                item["block_number"],
-            )
-            jobs[future] = item
+    block_number = dnas[0]["block_number"]
 
-    for future in as_completed(jobs, timeout):
-        mythic_progress_bar.update()
-        item = jobs[future]
+    multicaller = Multicall2.Multicall2(Multicall2_address)
+
+    multicall_method = multicaller.contract.tryAggregate
+
+    dnas_is_present = [
+        dna for dna in dnas if dna["dna"] is not None and dna["dna"] != "None"
+    ]
+
+    for dnas_chunk in [
+        dnas_is_present[i : i + CALL_CHUNK_SIZE]
+        for i in range(0, len(dnas), CALL_CHUNK_SIZE)
+    ]:
+        while True:
+            try:
+
+                send_to_multicall_dnas = [dna["dna"] for dna in dnas_chunk]
+
+                make_multicall_result = make_multicall(
+                    multicall_method,
+                    contract.contract.getUnicornBodyParts,
+                    contract_address,
+                    send_to_multicall_dnas,
+                    block_number=block_number,
+                )
+                tokens_metadata.extend(make_multicall_result)
+                mythic_progress_bar.update(len(send_to_multicall_dnas))
+                break
+            except ValueError:
+                time.sleep(1)
+                continue
+            except Exception as e:
+                print(e, file=sys.stderr)
+                print(send_to_multicall_dnas, file=sys.stderr)
+                raise e
+
+    for item, token_data in zip(dnas_is_present, tokens_metadata):
+        if token_data is None:
+            # Token item['token_id']} has no DNA
+            continue
         try:
-            body_parts = future.result()
             result = {
                 **item,
-                "num_mythic_body_parts": body_parts[-1],
+                "num_mythic_body_parts": token_data[-1],
             }
             results.append(result)
         except Exception as e:
             error = {
                 **item,
-                "error": f"Failed to retrieve DNA: {str(e)}",
+                "error": f"Failed to retrieve num_mythic_body_parts: {str(e)}",
             }
             errors.append(error)
 
@@ -257,18 +274,10 @@ def handle_dnas(args: argparse.Namespace) -> None:
         args.address,
         token_ids,
         args.block_number,
-        args.num_workers,
-        args.timeout,
-        args.checkpoint,
     )
 
     for result in results:
         print(json.dumps(result))
-
-    if args.update_checkpoint and args.checkpoint is not None:
-        with open(args.checkpoint, "w") as ofp:
-            for result in results:
-                print(json.dumps(result), file=ofp)
 
     for error in errors:
         print(json.dumps(error), file=sys.stderr)
@@ -284,18 +293,10 @@ def handle_metadata(args: argparse.Namespace) -> None:
         args.address,
         token_ids,
         args.block_number,
-        args.num_workers,
-        args.timeout,
-        args.checkpoint,
     )
 
     for result in results:
         print(json.dumps(result))
-
-    if args.update_checkpoint and args.checkpoint is not None:
-        with open(args.checkpoint, "w") as ofp:
-            for result in results:
-                print(json.dumps(result), file=ofp)
 
     for error in errors:
         print(json.dumps(error), file=sys.stderr)
@@ -313,19 +314,11 @@ def handle_mythic_body_parts(args: argparse.Namespace) -> None:
         args.address,
         dnas,
         args.block_number,
-        args.num_workers,
-        args.timeout,
-        args.checkpoint,
     )
 
     for result in results:
         json.dump(result, fp=sys.stdout)
         print("")
-
-    if args.update_checkpoint and args.checkpoint is not None:
-        with open(args.checkpoint, "w") as ofp:
-            for result in results:
-                print(json.dumps(result), file=ofp)
 
     for error in errors:
         json.dump(error, fp=sys.stderr)
@@ -401,7 +394,9 @@ def handle_moonstream_events(args: argparse.Namespace) -> None:
 
     while not success and attempts < args.max_retries:
         attempts += 1
-        response = requests.post(request_url, json=request_body, headers=headers)
+        response = requests.post(
+            request_url, json=request_body, headers=headers, timeout=10
+        )
         response.raise_for_status()
         response_body = response.json()
         data_url = response_body["url"]
@@ -413,9 +408,15 @@ def handle_moonstream_events(args: argparse.Namespace) -> None:
         while keep_going:
             time.sleep(args.interval)
             num_retries += 1
-            data_response = requests.get(
-                data_url, headers={"If-Modified-Since": if_modified_since}
-            )
+            try:
+                data_response = requests.get(
+                    data_url,
+                    headers={"If-Modified-Since": if_modified_since},
+                    timeout=10,
+                )
+            except:
+                print(f"Failed to get data from {data_url}", file=sys.stderr)
+                continue
             print(f"Status code: {data_response.status_code}", file=sys.stderr)
             print(
                 f"Last-Modified: {data_response.headers['Last-Modified']}",
@@ -701,31 +702,6 @@ def generate_cli() -> argparse.ArgumentParser:
         required=False,
         help="Ending token ID to get DNA for. (If not set, just gets the DNA for the token with the --start token ID.)",
     )
-    dnas_parser.add_argument(
-        "-j",
-        "--num-workers",
-        type=int,
-        default=1,
-        help="Maximum number of concurrent threads to use when crawling",
-    )
-    dnas_parser.add_argument(
-        "-t",
-        "--timeout",
-        type=float,
-        default=30.0,
-        help="Number of seconds to wait for each crawl response",
-    )
-    dnas_parser.add_argument(
-        "--checkpoint",
-        default=None,
-        help="Checkpoint file",
-    )
-    dnas_parser.add_argument(
-        "-u",
-        "--update-checkpoint",
-        action="store_true",
-        help="If you have set a checkpoint, this updates the checkpoint file in place",
-    )
 
     dnas_parser.set_defaults(func=handle_dnas)
 
@@ -743,31 +719,6 @@ def generate_cli() -> argparse.ArgumentParser:
         required=False,
         help="Ending token ID to get DNA for. (If not set, just gets the DNA for the token with the --start token ID.)",
     )
-    metadata_parser.add_argument(
-        "-j",
-        "--num-workers",
-        type=int,
-        default=1,
-        help="Maximum number of concurrent threads to use when crawling",
-    )
-    metadata_parser.add_argument(
-        "-t",
-        "--timeout",
-        type=float,
-        default=30.0,
-        help="Number of seconds to wait for each crawl response",
-    )
-    metadata_parser.add_argument(
-        "--checkpoint",
-        default=None,
-        help="Checkpoint file",
-    )
-    metadata_parser.add_argument(
-        "-u",
-        "--update-checkpoint",
-        action="store_true",
-        help="If you have set a checkpoint, this updates the checkpoint file in place",
-    )
 
     metadata_parser.set_defaults(func=handle_metadata)
 
@@ -777,31 +728,6 @@ def generate_cli() -> argparse.ArgumentParser:
         "--dnas",
         required=True,
         help='Path to JSON file containing results of "autocorns biologist dnas".',
-    )
-    mythic_body_parts_parser.add_argument(
-        "-j",
-        "--num-workers",
-        type=int,
-        default=1,
-        help="Maximum number of concurrent threads to use when crawling",
-    )
-    mythic_body_parts_parser.add_argument(
-        "-t",
-        "--timeout",
-        type=float,
-        default=30.0,
-        help="Number of seconds to wait for each crawl response",
-    )
-    mythic_body_parts_parser.add_argument(
-        "--checkpoint",
-        default=None,
-        help="Checkpoint file",
-    )
-    mythic_body_parts_parser.add_argument(
-        "-u",
-        "--update-checkpoint",
-        action="store_true",
-        help="If you have set a checkpoint, this updates the checkpoint file in place",
     )
 
     mythic_body_parts_parser.set_defaults(func=handle_mythic_body_parts)

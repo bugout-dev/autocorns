@@ -44,10 +44,7 @@ time autocorns biologist dnas \
     --address $CU_ADDRESS \
     --start 1 \
     --end $TOTAL_SUPPLY \
-    --num-workers 5 \
-    --timeout 5.0 \
-    --checkpoint $DATA_DIR/dnas.json \
-    --update-checkpoint
+    >$DATA_DIR/dnas.json
 
 time autocorns biologist metadata \
     --network $BROWNIE_NETWORK \
@@ -55,10 +52,7 @@ time autocorns biologist metadata \
     --address $CU_ADDRESS \
     --start 1 \
     --end $TOTAL_SUPPLY \
-    --num-workers 5 \
-    --timeout 5.0 \
-    --checkpoint $DATA_DIR/metadata.json \
-    --update-checkpoint
+    >$DATA_DIR/metadata.json
 
 
 time autocorns biologist mythic-body-parts \
@@ -66,10 +60,7 @@ time autocorns biologist mythic-body-parts \
     $BLOCK_NUMBER_ARG \
     --address $CU_ADDRESS \
     --dnas $DATA_DIR/dnas.json \
-    --num-workers 5 \
-    --timeout 5.0 \
-    --checkpoint $DATA_DIR/mythic-body-parts.json \
-    --update-checkpoint
+    >$DATA_DIR/mythic-body-parts.json
 
 time autocorns biologist merge \
     --metadata $DATA_DIR/metadata.json \
@@ -83,7 +74,6 @@ time autocorns biologist moonstream-events \
     --interval 5.0 \
     --max-retries 6 \
     -o $DATA_DIR/moonstream.json
-
 
 time autocorns biologist moonstream-events \
     --start 1651363200 \
