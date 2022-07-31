@@ -436,6 +436,7 @@ def handle_moonstream_events(args: argparse.Namespace) -> None:
 def handle_sob(args: argparse.Namespace) -> None:
     milestone_2_cutoff = 29254405
     milestone_3_cutoff = 30192250
+    milestone_3_end = 31372175
 
     token_metadata_index: Dict[str, Dict[str, Any]] = {}
     with open(args.merged, "r") as ifp:
@@ -467,10 +468,14 @@ def handle_sob(args: argparse.Namespace) -> None:
                 event["milestone_1"] = 0
                 event["milestone_2"] = 20
                 event["milestone_3"] = 0
-            else:
+            elif event["block_number"] <= milestone_3_end:
                 event["milestone_1"] = 0
                 event["milestone_2"] = 0
                 event["milestone_3"] = 20
+            else:
+                event["milestone_1"] = 0
+                event["milestone_2"] = 0
+                event["milestone_3"] = 0
 
             event["is_hidden_class"] = 0
             metadata = token_metadata_index.get(event["token"])
@@ -485,10 +490,14 @@ def handle_sob(args: argparse.Namespace) -> None:
                     event["milestone_1"] += 0
                     event["milestone_2"] += 0
                     event["milestone_3"] += 0
-                else:
+                elif event["block_number"] <= milestone_3_end:
                     event["milestone_1"] += 0
                     event["milestone_2"] += 0
                     event["milestone_3"] += 30
+                else:
+                    event["milestone_1"] += 0
+                    event["milestone_2"] += 0
+                    event["milestone_3"] += 0
 
             breeding_events.append(event)
 
@@ -507,10 +516,14 @@ def handle_sob(args: argparse.Namespace) -> None:
                     event["milestone_1"] = 0
                     event["milestone_2"] = 20
                     event["milestone_3"] = 0
-                else:
+                elif event["block_number"] <= milestone_3_end:
                     event["milestone_1"] = 0
                     event["milestone_2"] = 0
                     event["milestone_3"] = 20
+                else:
+                    event["milestone_1"] = 0
+                    event["milestone_2"] = 0
+                    event["milestone_3"] = 0
 
             hatching_events.append(event)
         else:
@@ -526,10 +539,14 @@ def handle_sob(args: argparse.Namespace) -> None:
             event["milestone_1"] = 0
             event["milestone_2"] = 50
             event["milestone_3"] = 0
-        else:
+        elif event["block_number"] <= milestone_3_end:
             event["milestone_1"] = 0
             event["milestone_2"] = 0
             event["milestone_3"] = 10
+        else:
+            event["milestone_1"] = 0
+            event["milestone_2"] = 0
+            event["milestone_3"] = 0
 
         evolution_events.append(event)
 
@@ -573,7 +590,7 @@ def handle_sob(args: argparse.Namespace) -> None:
             player_points[player]["num_breeds_1"] += 1
         elif event["block_number"] < milestone_3_cutoff:
             player_points[player]["num_breeds_2"] += 1
-        else:
+        elif event["block_number"] <= milestone_3_end:
             player_points[player]["num_breeds_3"] += 1
             player_points[player]["num_hidden_class_3"] += event["is_hidden_class"]
 
@@ -615,7 +632,7 @@ def handle_sob(args: argparse.Namespace) -> None:
             player_points[player]["num_hatches_1"] += 1
         elif event["block_number"] < milestone_3_cutoff:
             player_points[player]["num_hatches_2"] += 1
-        else:
+        elif event["block_number"] <= milestone_3_end:
             player_points[player]["num_hatches_3"] += 1
 
         player_points[player]["num_mythic_hatches"] += int(
@@ -666,7 +683,7 @@ def handle_sob(args: argparse.Namespace) -> None:
             player_points[player]["num_evolutions_2"] += 1
         elif event["block_number"] < milestone_3_cutoff:
             player_points[player]["num_evolutions_2"] += 1
-        else:
+        elif event["block_number"] <= milestone_3_end:
             player_points[player]["num_evolutions_3"] += 1
 
     scores: List[Dict[str, Any]] = []
