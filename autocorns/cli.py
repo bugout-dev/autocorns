@@ -17,7 +17,7 @@ def main():
     subparsers.add_parser("biologist", parents=[biologist_parser], add_help=False)
 
     crawler_parser = crawl_reports.generate_cli()
-    subparsers.add_parser("crawl-reports", parents=[crawler_parser], add_help=False)
+    subparsers.add_parser("dna-reports", parents=[crawler_parser], add_help=False)
 
     args = parser.parse_args()
     args.func(args)
