@@ -146,7 +146,7 @@ def generate_cli() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Crypto Unicorns genetics crawler")
     subparsers = parser.add_subparsers()
 
-    dnas_parser = subparsers.add_parser("dna-report", help="Generate DNA report")
+    dnas_parser = subparsers.add_parser("crawl", help="Crawl DNA report")
     DNAMigrationFacet.add_default_arguments(dnas_parser, False)
     dnas_parser.add_argument(
         "--start",
