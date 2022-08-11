@@ -143,11 +143,11 @@ def handle_dnas(args: argparse.Namespace) -> None:
         args.block_number,
     )
 
-    for result in results:
-        print(json.dumps(result))
+    # for result in results:
+    print(json.dumps(results))
 
-    for error in errors:
-        print(json.dumps(error), file=sys.stderr)
+    # for error in errors:
+    print(json.dumps(errors), file=sys.stderr)
 
 
 def generate_cli() -> argparse.ArgumentParser:
