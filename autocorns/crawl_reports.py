@@ -109,7 +109,10 @@ def unicorn_dnas(
             result = {
                 "token_id": token_id,
                 "block_number": block_number,
-                "dnaReport": token_dna,
+                "predictive": token_dna[0],
+                "live": token_dna[1],
+                "canonical": token_dna[2],
+                "cached": token_dna[3]
             }
             results.append(result)
         except Exception as e:
@@ -123,12 +126,17 @@ def unicorn_dnas(
     return results, errors
 
 
+
 def handle_dnas(args: argparse.Namespace) -> None:
     network.connect(args.network)
-    if args.end is None:
-        args.end = args.start
-    assert args.start <= args.end, "Starting token ID must not exceed ending token ID"
-    token_ids = range(args.start, args.end + 1)
+    if args.start is None:
+        token_ids = args.tokenIDs
+    else:
+        if args.end is None:
+            args.end = args.start
+        assert args.start <= args.end, "Starting token ID must not exceed ending token ID"  
+        token_ids = range(args.start, args.end + 1)
+    
     results, errors = unicorn_dnas(
         args.address,
         token_ids,
@@ -151,7 +159,7 @@ def generate_cli() -> argparse.ArgumentParser:
     dnas_parser.add_argument(
         "--start",
         type=int,
-        required=True,
+        required=False,
         help="Starting token ID to get DNA for.",
     )
     dnas_parser.add_argument(
@@ -159,6 +167,12 @@ def generate_cli() -> argparse.ArgumentParser:
         type=int,
         required=False,
         help="Ending token ID to get DNA for. (If not set, just gets the DNA for the token with the --start token ID.)",
+    )
+    dnas_parser.add_argument(
+        "--tokenIDs",
+        required=False,
+        help="List of tokenIDs to get DNA for.", 
+        nargs="+"
     )
 
     dnas_parser.set_defaults(func=handle_dnas)
