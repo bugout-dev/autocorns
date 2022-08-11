@@ -1,0 +1,6469 @@
+{
+    "abi": [
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "approved",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "Approval",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "operator",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "bool",
+                "name": "approved",
+                "type": "bool"
+            }
+        ],
+        "name": "ApprovalForAll",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "from",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "Transfer",
+        "type": "event"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "approve",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
+            }
+        ],
+        "name": "balanceOf",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "firstParentId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "secondParentId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256[3]",
+                "name": "possibleClasses",
+                "type": "uint256[3]"
+            },
+            {
+                "internalType": "uint256[3]",
+                "name": "classProbabilities",
+                "type": "uint256[3]"
+            },
+            {
+                "internalType": "uint256",
+                "name": "owedRBW",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "owedUNIM",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "bundleId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "blockDeadline",
+                "type": "uint256"
+            }
+        ],
+        "name": "beginBreedingGenerateMessageHash",
+        "outputs": [
+            {
+                "internalType": "bytes32",
+                "name": "",
+                "type": "bytes32"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "firstParentId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "secondParentId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256[3]",
+                "name": "possibleClasses",
+                "type": "uint256[3]"
+            },
+            {
+                "internalType": "uint256[3]",
+                "name": "classProbabilities",
+                "type": "uint256[3]"
+            },
+            {
+                "internalType": "uint256",
+                "name": "owedRBW",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "owedUNIM",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "bundleId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "blockDeadline",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes",
+                "name": "signature",
+                "type": "bytes"
+            }
+        ],
+        "name": "beginBreedingWithSignature",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "contractURI",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "string",
+                "name": "tokenURI",
+                "type": "string"
+            },
+            {
+                "internalType": "uint256",
+                "name": "bundleId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "blockDeadline",
+                "type": "uint256"
+            }
+        ],
+        "name": "finishBreedingGenerateMessageHash",
+        "outputs": [
+            {
+                "internalType": "bytes32",
+                "name": "",
+                "type": "bytes32"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "string",
+                "name": "tokenURI",
+                "type": "string"
+            },
+            {
+                "internalType": "uint256",
+                "name": "bundleId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "blockDeadline",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes",
+                "name": "signature",
+                "type": "bytes"
+            }
+        ],
+        "name": "finishBreedingWithSignature",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "genesisEggsMax",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getApproved",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getDNA",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "operator",
+                "type": "address"
+            }
+        ],
+        "name": "isApprovedForAll",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "license",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "name",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "ownerOf",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "presaleHatchingUnlockTime",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "presaleUnlockTime",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "bundleId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "blockDeadline",
+                "type": "uint256"
+            }
+        ],
+        "name": "retryBreedingGenerateMessageHash",
+        "outputs": [
+            {
+                "internalType": "bytes32",
+                "name": "",
+                "type": "bytes32"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "bundleId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "blockDeadline",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes",
+                "name": "signature",
+                "type": "bytes"
+            }
+        ],
+        "name": "retryBreedingWithSignature",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "from",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "safeTransferFrom",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "from",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes",
+                "name": "_data",
+                "type": "bytes"
+            }
+        ],
+        "name": "safeTransferFrom",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "operator",
+                "type": "address"
+            },
+            {
+                "internalType": "bool",
+                "name": "approved",
+                "type": "bool"
+            }
+        ],
+        "name": "setApprovalForAll",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes4",
+                "name": "interfaceId",
+                "type": "bytes4"
+            }
+        ],
+        "name": "supportsInterface",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "symbol",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "index",
+                "type": "uint256"
+            }
+        ],
+        "name": "tokenByIndex",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "index",
+                "type": "uint256"
+            }
+        ],
+        "name": "tokenOfOwnerByIndex",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "tokenURI",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "totalSupply",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "from",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "transferFrom",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_birthday",
+                "type": "uint256"
+            }
+        ],
+        "name": "adminCorrectBirthday",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_dna",
+                "type": "uint256"
+            }
+        ],
+        "name": "adminCorrectDNA",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256[]",
+                "name": "_tokenIds",
+                "type": "uint256[]"
+            }
+        ],
+        "name": "cacheVolatileHatchDNA",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "dnaReport",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "predictive",
+                "type": "bool"
+            },
+            {
+                "internalType": "uint256",
+                "name": "live",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "canonical",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "cached",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getTargetDNAVersion",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256[]",
+                "name": "_tokenIds",
+                "type": "uint256[]"
+            },
+            {
+                "internalType": "uint16[]",
+                "name": "_firstNames",
+                "type": "uint16[]"
+            },
+            {
+                "internalType": "uint16[]",
+                "name": "_lastNames",
+                "type": "uint16[]"
+            },
+            {
+                "internalType": "bool",
+                "name": "_bypassDNAEvents",
+                "type": "bool"
+            }
+        ],
+        "name": "migrateUnicornsToV2DNA",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_firstTokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_lastTokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint16[]",
+                "name": "_firstNames",
+                "type": "uint16[]"
+            },
+            {
+                "internalType": "uint16[]",
+                "name": "_lastNames",
+                "type": "uint16[]"
+            },
+            {
+                "internalType": "bool",
+                "name": "_bypassDNAEvents",
+                "type": "bool"
+            }
+        ],
+        "name": "migrateUnicornsToV2DNAByIDRange",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256[]",
+                "name": "_tokenIds",
+                "type": "uint256[]"
+            },
+            {
+                "internalType": "bool",
+                "name": "_bypassDNAEvents",
+                "type": "bool"
+            },
+            {
+                "internalType": "bool",
+                "name": "_force",
+                "type": "bool"
+            }
+        ],
+        "name": "rollbackV2DNAToV1DNA",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_versionNumber",
+                "type": "uint256"
+            }
+        ],
+        "name": "setTargetDNAVersion",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "string",
+                "name": "message",
+                "type": "string"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "bigNumber",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint8",
+                "name": "smallNumber",
+                "type": "uint8"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "caller",
+                "type": "address"
+            }
+        ],
+        "name": "DebugDummyEvent",
+        "type": "event"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address[]",
+                "name": "_a",
+                "type": "address[]"
+            }
+        ],
+        "name": "debugBatchRegisterAdmin",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address[]",
+                "name": "_a",
+                "type": "address[]"
+            }
+        ],
+        "name": "debugBatchRegisterDebugger",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256[]",
+                "name": "_tokenIds",
+                "type": "uint256[]"
+            },
+            {
+                "internalType": "string[]",
+                "name": "_tokenURIs",
+                "type": "string[]"
+            }
+        ],
+        "name": "debugBatchSetTokenURI",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugBurnUnicorn",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugClearIdempotenceState",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugDowngradeToBaby",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugDowngradeToEgg",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "s",
+                "type": "string"
+            }
+        ],
+        "name": "debugEcho",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "i",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugEchoUint",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "debugEmitTestEvent",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "debugExpectedFailure",
+        "outputs": [],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "debugExpectedRevertOnDataWrite",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugGetBioClock",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugGetDNA",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugGetGameLocked",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugGetHatchingStarted",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugGetLifecycleStage",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_address",
+                "type": "address"
+            }
+        ],
+        "name": "debugGetRole",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "isAdmin",
+                "type": "bool"
+            },
+            {
+                "internalType": "bool",
+                "name": "isDebugger",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugGetTokenURI",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugHatchToRandomAdult",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_to",
+                "type": "address"
+            }
+        ],
+        "name": "debugMintGenesisEgg",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "debugPing",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_a",
+                "type": "address"
+            }
+        ],
+        "name": "debugRegisterAdmin",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_a",
+                "type": "address"
+            }
+        ],
+        "name": "debugRegisterDebugger",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "debugRepairMissingRoles",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "timestamp",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugSetBioClock",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint8",
+                "name": "_breedingPoints",
+                "type": "uint8"
+            }
+        ],
+        "name": "debugSetBreedingPoints",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_dna",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugSetDNA",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bool",
+                "name": "_val",
+                "type": "bool"
+            }
+        ],
+        "name": "debugSetGameLocked",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bool",
+                "name": "_value",
+                "type": "bool"
+            }
+        ],
+        "name": "debugSetGenesisFlag",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bool",
+                "name": "_val",
+                "type": "bool"
+            }
+        ],
+        "name": "debugSetHatchingStarted",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_state",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugSetIdempotenceState",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bool",
+                "name": "_val",
+                "type": "bool"
+            }
+        ],
+        "name": "debugSetNewEggWaitingForRNG",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bool",
+                "name": "_val",
+                "type": "bool"
+            }
+        ],
+        "name": "debugSetNewEggWaitingForTokenURI",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bool",
+                "name": "_val",
+                "type": "bool"
+            }
+        ],
+        "name": "debugSetOrigin",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "string",
+                "name": "_uri",
+                "type": "string"
+            }
+        ],
+        "name": "debugSetTokenURI",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint8",
+                "name": "_version",
+                "type": "uint8"
+            }
+        ],
+        "name": "debugSetVersion",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "disableDebugging",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "disableLMDV1Debugging",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "enableLMDV1Debugging",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "initializeLMDV1Library",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bool",
+                "name": "_value",
+                "type": "bool"
+            }
+        ],
+        "name": "setOriginFlag",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint8",
+                "name": "classId",
+                "type": "uint8"
+            }
+        ],
+        "name": "debugChangeClass",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugCheckPredictiveDNA",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "shouldUsePredictiveDNA",
+                "type": "bool"
+            },
+            {
+                "internalType": "uint256",
+                "name": "canonicalDNA",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "predictedDNA",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "eggId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "parentId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugDNAParentFullMatch",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint8",
+                "name": "classId",
+                "type": "uint8"
+            },
+            {
+                "internalType": "uint8",
+                "name": "slotId",
+                "type": "uint8"
+            }
+        ],
+        "name": "debugDumpBodyPartBuckets",
+        "outputs": [
+            {
+                "internalType": "uint256[]",
+                "name": "",
+                "type": "uint256[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint8",
+                "name": "classId",
+                "type": "uint8"
+            }
+        ],
+        "name": "debugDumpGeneBucketSumWeights",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint8",
+                "name": "classId",
+                "type": "uint8"
+            }
+        ],
+        "name": "debugDumpGenes",
+        "outputs": [
+            {
+                "internalType": "uint256[]",
+                "name": "",
+                "type": "uint256[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugDumpHatchRoundtrip",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "vrfRequestId",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "uint256",
+                "name": "blockDeadline",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "inheritanceChance",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "rng",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "rngRandomness",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "rngBlockNumber",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "canonicalDNA",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "predictedDNA",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "predictedBirthday",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugDumpHatchingData",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "blockDeadlineByVRFRequestId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "roundTripIdByVRFRequestId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "vrfRequestIdByRoundTripId",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "uint256",
+                "name": "tokenIdByVRFRequestId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "inheritanceChanceByVRFRequestId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "rngByVRFRequestId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "rngBlockNumberByVRFRequestId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "birthdayByVRFRequestId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "roundTripIdByTokenId",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "i",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "j",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugGetBodyPartBucket",
+        "outputs": [
+            {
+                "internalType": "uint256[]",
+                "name": "",
+                "type": "uint256[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "globalId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugGetBodyPartDefinition",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "localId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bool",
+                "name": "isMythic",
+                "type": "bool"
+            },
+            {
+                "internalType": "uint256",
+                "name": "inheritedGene",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "weight",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "globalPartId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugGetBodyPartWeight",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_classId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_slotId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugGetBodyPartsTotalWeight",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_roundtripId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugGetBreedingRoundtrip",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256[3]",
+                "name": "possibleClasses",
+                "type": "uint256[3]"
+            },
+            {
+                "internalType": "uint256[3]",
+                "name": "classProbabilities",
+                "type": "uint256[3]"
+            },
+            {
+                "internalType": "uint256",
+                "name": "ttlBlock",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "eggId",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "geneId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugGetGeneDef",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "tier",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "nextUpgrade",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "application",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_roundtripId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugGetHatchRoundtrip",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "blockDeadline",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "inheritanceChance",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_classId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_slotId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugGetNumBodyParts",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugGetParents",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "firstParent",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "secondParent",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint8",
+                "name": "firstParentClass",
+                "type": "uint8"
+            },
+            {
+                "internalType": "uint8",
+                "name": "secondParentClass",
+                "type": "uint8"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "classId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "slotId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "randomness",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "salt",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugGetRandomPartId",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugGetRoundtripId",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "breedingRoundtrip",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "hatchingRoundtrip",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "evolutionRoundtrip",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "nonce",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugGetSSSHash",
+        "outputs": [
+            {
+                "internalType": "bytes32",
+                "name": "structHash",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "digest",
+                "type": "bytes32"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "nonce",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugGetStructHash",
+        "outputs": [
+            {
+                "internalType": "bytes32",
+                "name": "",
+                "type": "bytes32"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_classId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_slotId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugGetTotalWeight",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugGetVRFFailure",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugHatchingRNGGates",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "randomness",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "inheritanceChance",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "bodyChance",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "faceChance",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "hornChance",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "hoovesChance",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "maneChance",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "tailChance",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "dna",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "parent",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugInheritBody",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "dna",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "parent",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugInheritFace",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "dna",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "parent",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugInheritHooves",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "dna",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "parent",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugInheritHorn",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "dna",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "parent",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugInheritMane",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "dna",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "parent",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugInheritTail",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "cachedDNA",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugSetCachedDNA",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "vrfRequestId",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "uint256",
+                "name": "blockDeadline",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "inheritanceChance",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "rng",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "rngRandomness",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "rngBlockNumber",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "birthday",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugSetHatchRoundtripState",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bool",
+                "name": "willItFail",
+                "type": "bool"
+            }
+        ],
+        "name": "debugSetVRFFailure",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugSpoofHatchRoundtrip",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "from",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "to",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugSpoofTransferEventsForOS",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugSpoofUnstableHatchingState",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugStepthroughHatchingA",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "dnaA",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "dnaB",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "dnaC",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "rng11",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "rng12",
+                "type": "uint256"
+            },
+            {
+                "internalType": "string",
+                "name": "bodyTrace",
+                "type": "string"
+            },
+            {
+                "internalType": "uint256",
+                "name": "partId",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugTestHatchMatching",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "firstParentDNA",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "secondParentDNA",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "dna",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "classId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "matching",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "randomness",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugTestRNGExpand",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "classId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "randomness",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugTestRandomGeneGen",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "classId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "slotId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "randomness",
+                "type": "uint256"
+            }
+        ],
+        "name": "debugTestRandomPartGen",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "nonce",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes",
+                "name": "signature",
+                "type": "bytes"
+            }
+        ],
+        "name": "debugTestSSS",
+        "outputs": [
+            {
+                "internalType": "bytes32",
+                "name": "structHash",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "digest",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bool",
+                "name": "signatureCheck",
+                "type": "bool"
+            },
+            {
+                "internalType": "address",
+                "name": "gameServer",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "sender",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "facet",
+                "type": "address"
+            }
+        ],
+        "name": "mumbaiAdminForceRemoveFacet",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes4",
+                "name": "selector",
+                "type": "bytes4"
+            }
+        ],
+        "name": "mumbaiAdminForceRemoveSelector",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes4[]",
+                "name": "selectors",
+                "type": "bytes4[]"
+            }
+        ],
+        "name": "mumbaiAdminForceRemoveSelectors",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes4",
+                "name": "_interfaceId",
+                "type": "bytes4"
+            }
+        ],
+        "name": "supportsInterface",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address[]",
+                "name": "addresses",
+                "type": "address[]"
+            },
+            {
+                "internalType": "uint8",
+                "name": "mintAllowance",
+                "type": "uint8"
+            }
+        ],
+        "name": "addWhiteListAddresses",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_to",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_numTokens",
+                "type": "uint256"
+            }
+        ],
+        "name": "claimGenesisTokens",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "forceUnlockUnicornOutOfGame",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getForceUnlockUnicornCooldown",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_address",
+                "type": "address"
+            }
+        ],
+        "name": "getMintAllowance",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "lockUnicornIntoGame",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "cooldownSeconds",
+                "type": "uint256"
+            }
+        ],
+        "name": "setForceUnlockUnicornCooldown",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "string",
+                "name": "_tokenURI",
+                "type": "string"
+            }
+        ],
+        "name": "setTokenURI",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "unicornIsCoolingDown",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "unicornIsTransferable",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "unicornLastForceUnlock",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "string",
+                "name": "tokenURI",
+                "type": "string"
+            },
+            {
+                "internalType": "uint256",
+                "name": "requestId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "blockDeadline",
+                "type": "uint256"
+            }
+        ],
+        "name": "unlockUnicornOutOfGameGenerateMessageHash",
+        "outputs": [
+            {
+                "internalType": "bytes32",
+                "name": "",
+                "type": "bytes32"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "string",
+                "name": "tokenURI",
+                "type": "string"
+            },
+            {
+                "internalType": "uint256",
+                "name": "requestId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "blockDeadline",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes",
+                "name": "signature",
+                "type": "bytes"
+            }
+        ],
+        "name": "unlockUnicornOutOfGameWithSignature",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "owedRBW",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "owedUNIM",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "upgradeBooster",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "bundleId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "blockDeadline",
+                "type": "uint256"
+            }
+        ],
+        "name": "beginEvolutionGenerateMessageHash",
+        "outputs": [
+            {
+                "internalType": "bytes32",
+                "name": "",
+                "type": "bytes32"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "owedRBW",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "owedUNIM",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "upgradeBooster",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "bundleId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "blockDeadline",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes",
+                "name": "signature",
+                "type": "bytes"
+            }
+        ],
+        "name": "beginEvolutionWithSignature",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "string",
+                "name": "tokenURI",
+                "type": "string"
+            },
+            {
+                "internalType": "uint256",
+                "name": "bundleId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "blockDeadline",
+                "type": "uint256"
+            }
+        ],
+        "name": "finishEvolutionGenerateMessageHash",
+        "outputs": [
+            {
+                "internalType": "bytes32",
+                "name": "",
+                "type": "bytes32"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "string",
+                "name": "tokenURI",
+                "type": "string"
+            },
+            {
+                "internalType": "uint256",
+                "name": "bundleId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "blockDeadline",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes",
+                "name": "signature",
+                "type": "bytes"
+            }
+        ],
+        "name": "finishEvolutionWithSignature",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "bundleId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "blockDeadline",
+                "type": "uint256"
+            }
+        ],
+        "name": "retryEvolutionGenerateMessageHash",
+        "outputs": [
+            {
+                "internalType": "bytes32",
+                "name": "",
+                "type": "bytes32"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "bundleId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "blockDeadline",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes",
+                "name": "signature",
+                "type": "bytes"
+            }
+        ],
+        "name": "retryEvolutionWithSignature",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getGameBankAddress",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_classId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_statId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getBaseStats",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_classId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_partSlotId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getBodyPartBuckets",
+        "outputs": [
+            {
+                "internalType": "uint256[]",
+                "name": "",
+                "type": "uint256[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_classId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_partSlotId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_localPartId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getBodyPartGlobalIdFromLocalId",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_globalPartId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getBodyPartInheritedGene",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_globalPartId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getBodyPartIsMythic",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_globalPartId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getBodyPartLocalIdFromGlobalId",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_globalPartId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getBodyPartWeight",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_geneId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getGeneApplicationById",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_geneId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_geneBonusSlot",
+                "type": "uint256"
+            }
+        ],
+        "name": "getGeneBonusStatByGeneId",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_geneId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_geneBonusSlot",
+                "type": "uint256"
+            }
+        ],
+        "name": "getGeneBonusValueByGeneId",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_classId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getGeneBucketSumWeights",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_classId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getGeneBuckets",
+        "outputs": [
+            {
+                "internalType": "uint256[]",
+                "name": "",
+                "type": "uint256[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_geneId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getGeneTierById",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_geneId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getGeneTierUpgradeById",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_geneId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getGeneWeightById",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "hatchDNA",
+                "type": "uint256"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "hatcher",
+                "type": "address"
+            }
+        ],
+        "name": "HatchFinishedEvent",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "eggDNA",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "hatchDNA",
+                "type": "uint256"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "hatcher",
+                "type": "address"
+            }
+        ],
+        "name": "HatchStartedEvent",
+        "type": "event"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256[]",
+                "name": "_tokenIds",
+                "type": "uint256[]"
+            },
+            {
+                "internalType": "string[]",
+                "name": "_tokenURIs",
+                "type": "string[]"
+            }
+        ],
+        "name": "batchFinishHatchingEgg",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "beginHatchingEgg",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "string",
+                "name": "_tokenURI",
+                "type": "string"
+            }
+        ],
+        "name": "finishHatchingEgg",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "inheritanceChance",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "bundleId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "blockDeadline",
+                "type": "uint256"
+            }
+        ],
+        "name": "beginHatchingGenerateMessageHash",
+        "outputs": [
+            {
+                "internalType": "bytes32",
+                "name": "",
+                "type": "bytes32"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "inheritanceChance",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "bundleId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "blockDeadline",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes",
+                "name": "signature",
+                "type": "bytes"
+            }
+        ],
+        "name": "beginHatchingWithSignature",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "string",
+                "name": "tokenURI",
+                "type": "string"
+            },
+            {
+                "internalType": "uint256",
+                "name": "bundleId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "blockDeadline",
+                "type": "uint256"
+            }
+        ],
+        "name": "finishHatchingGenerateMessageHash",
+        "outputs": [
+            {
+                "internalType": "bytes32",
+                "name": "",
+                "type": "bytes32"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "string",
+                "name": "tokenURI",
+                "type": "string"
+            },
+            {
+                "internalType": "uint256",
+                "name": "bundleId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "blockDeadline",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes",
+                "name": "signature",
+                "type": "bytes"
+            }
+        ],
+        "name": "finishHatchingWithSignature",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "bundleId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "blockDeadline",
+                "type": "uint256"
+            }
+        ],
+        "name": "retryHatchingGenerateMessageHash",
+        "outputs": [
+            {
+                "internalType": "bytes32",
+                "name": "",
+                "type": "bytes32"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "bundleId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "blockDeadline",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes",
+                "name": "signature",
+                "type": "bytes"
+            }
+        ],
+        "name": "retryHatchingWithSignature",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "address",
+                        "name": "facetAddress",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "enum IDiamondCut.FacetCutAction",
+                        "name": "action",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "bytes4[]",
+                        "name": "functionSelectors",
+                        "type": "bytes4[]"
+                    }
+                ],
+                "indexed": false,
+                "internalType": "struct IDiamondCut.FacetCut[]",
+                "name": "_diamondCut",
+                "type": "tuple[]"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "_init",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "bytes",
+                "name": "_calldata",
+                "type": "bytes"
+            }
+        ],
+        "name": "DiamondCut",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "previousOwner",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "newOwner",
+                "type": "address"
+            }
+        ],
+        "name": "OwnershipTransferred",
+        "type": "event"
+    },
+    {
+        "inputs": [],
+        "name": "owner",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "owner_",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "locker",
+                "type": "address"
+            }
+        ],
+        "name": "UnicornLockedIntoGame",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "locker",
+                "type": "address"
+            }
+        ],
+        "name": "UnicornUnlockedOutOfGame",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "timestamp",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "locker",
+                "type": "address"
+            }
+        ],
+        "name": "UnicornUnlockedOutOfGameForcefully",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "eggId",
+                "type": "uint256"
+            }
+        ],
+        "name": "BreedingComplete",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "firstParentId",
+                "type": "uint256"
+            },
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "secondParentId",
+                "type": "uint256"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "breeder",
+                "type": "address"
+            }
+        ],
+        "name": "BreedingStarted",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "indexed": true,
+                "internalType": "bytes32",
+                "name": "vrfRequestId",
+                "type": "bytes32"
+            }
+        ],
+        "name": "NewEggRNGRequested",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "eggId",
+                "type": "uint256"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "playerWallet",
+                "type": "address"
+            }
+        ],
+        "name": "NewEggReadyForTokenURI",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "firstParentId",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "secondParentId",
+                "type": "uint256"
+            },
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "childId",
+                "type": "uint256"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "breeder",
+                "type": "address"
+            }
+        ],
+        "name": "UnicornEggCreated",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "playerWallet",
+                "type": "address"
+            }
+        ],
+        "name": "EvolutionComplete",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "indexed": true,
+                "internalType": "bytes32",
+                "name": "vrfRequestId",
+                "type": "bytes32"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "playerWallet",
+                "type": "address"
+            }
+        ],
+        "name": "EvolutionRNGRequested",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "playerWallet",
+                "type": "address"
+            }
+        ],
+        "name": "EvolutionReadyForTokenURI",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "playerWallet",
+                "type": "address"
+            }
+        ],
+        "name": "HatchingComplete",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "indexed": true,
+                "internalType": "bytes32",
+                "name": "vrfRequestId",
+                "type": "bytes32"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "playerWallet",
+                "type": "address"
+            }
+        ],
+        "name": "HatchingRNGRequested",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "playerWallet",
+                "type": "address"
+            }
+        ],
+        "name": "HatchingReadyForTokenURI",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "string",
+                "name": "method",
+                "type": "string"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "caller",
+                "type": "address"
+            }
+        ],
+        "name": "LibMumbaiDebugV1Activity",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "dna",
+                "type": "uint256"
+            }
+        ],
+        "name": "DNAUpdated",
+        "type": "event"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getIdempotentState",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getUnicornName",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getUnicornParents",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_owner",
+                "type": "address"
+            },
+            {
+                "internalType": "uint32",
+                "name": "_pageNumber",
+                "type": "uint32"
+            }
+        ],
+        "name": "getUnicornsByOwner",
+        "outputs": [
+            {
+                "internalType": "uint256[]",
+                "name": "tokenIds",
+                "type": "uint256[]"
+            },
+            {
+                "internalType": "uint16[]",
+                "name": "classes",
+                "type": "uint16[]"
+            },
+            {
+                "internalType": "string[]",
+                "name": "names",
+                "type": "string[]"
+            },
+            {
+                "internalType": "bool[]",
+                "name": "gameLocked",
+                "type": "bool[]"
+            },
+            {
+                "internalType": "bool",
+                "name": "moreEntriesExist",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256[]",
+                "name": "_ids",
+                "type": "uint256[]"
+            },
+            {
+                "internalType": "string[]",
+                "name": "_names",
+                "type": "string[]"
+            }
+        ],
+        "name": "registerFirstNames",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256[]",
+                "name": "_ids",
+                "type": "uint256[]"
+            },
+            {
+                "internalType": "string[]",
+                "name": "_names",
+                "type": "string[]"
+            }
+        ],
+        "name": "registerLastNames",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "resetFirstNamesList",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "resetLastNamesList",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_id",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bool",
+                "name": "_delete",
+                "type": "bool"
+            }
+        ],
+        "name": "retireFirstName",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_id",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bool",
+                "name": "_delete",
+                "type": "bool"
+            }
+        ],
+        "name": "retireLastName",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getFullName",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_dna",
+                "type": "uint256"
+            }
+        ],
+        "name": "getFullNameFromDNA",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_nameId",
+                "type": "uint256"
+            }
+        ],
+        "name": "lookupFirstName",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_nameId",
+                "type": "uint256"
+            }
+        ],
+        "name": "lookupLastName",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_newAddress",
+                "type": "address"
+            }
+        ],
+        "name": "changeGameServerAddress",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "gameServer",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getChainlinkVRFCoordinator",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getChainlinkVRFFee",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getChainlinkVRFKeyhash",
+        "outputs": [
+            {
+                "internalType": "bytes32",
+                "name": "",
+                "type": "bytes32"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getVRFBlocksToRespond",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "vrfRequestId",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "uint256",
+                "name": "randomness",
+                "type": "uint256"
+            }
+        ],
+        "name": "rawFulfillRandomness",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "vrfBlocksToRespond",
+                "type": "uint256"
+            }
+        ],
+        "name": "setVRFBlocksToRespond",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256[]",
+                "name": "roundTripIds",
+                "type": "uint256[]"
+            }
+        ],
+        "name": "batchDeleteBreedingRoundTrip",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256[]",
+                "name": "eggIds",
+                "type": "uint256[]"
+            }
+        ],
+        "name": "batchRepairBreedingForBadTimeout",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            }
+        ],
+        "name": "deleteBreedingRoundTrip",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "eggId",
+                "type": "uint256"
+            }
+        ],
+        "name": "repairBreedingForBadTimeout",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "dna",
+                "type": "uint256"
+            }
+        ],
+        "name": "adminForceDNA",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "idmp",
+                "type": "uint256"
+            }
+        ],
+        "name": "adminForceIdempotenceState",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "adminGetHatchDetails",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "roundTripId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "vrfRequestId",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "uint256",
+                "name": "blockDeadline",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "rngBlockNumber",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "inheritanceChance",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "rng",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "birthday",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bool",
+                "name": "shouldUsePredictiveDNA",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getEnduranceDefenseScalar",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getEnduranceScalar",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getEnduranceVitalityScalar",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getIntelligenceMagicScalar",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getIntelligenceResistanceScalar",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getIntelligenceScalar",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getPowerAccuracyScalar",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getPowerAttackScalar",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getPowerScalar",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getSpeedAttackspeedScalar",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getSpeedMovespeedScalar",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getSpeedScalar",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "scalar",
+                "type": "uint256"
+            }
+        ],
+        "name": "setEnduranceDefenseScalar",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "scalar",
+                "type": "uint256"
+            }
+        ],
+        "name": "setEnduranceScalar",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "scalar",
+                "type": "uint256"
+            }
+        ],
+        "name": "setEnduranceVitalityScalar",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "scalar",
+                "type": "uint256"
+            }
+        ],
+        "name": "setIntelligenceMagicScalar",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "scalar",
+                "type": "uint256"
+            }
+        ],
+        "name": "setIntelligenceResistanceScalar",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "scalar",
+                "type": "uint256"
+            }
+        ],
+        "name": "setIntelligenceScalar",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "scalar",
+                "type": "uint256"
+            }
+        ],
+        "name": "setPowerAccuracyScalar",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "scalar",
+                "type": "uint256"
+            }
+        ],
+        "name": "setPowerAttackScalar",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "scalar",
+                "type": "uint256"
+            }
+        ],
+        "name": "setPowerScalar",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "scalar",
+                "type": "uint256"
+            }
+        ],
+        "name": "setSpeedAttackspeedScalar",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "scalar",
+                "type": "uint256"
+            }
+        ],
+        "name": "setSpeedMovespeedScalar",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "scalar",
+                "type": "uint256"
+            }
+        ],
+        "name": "setSpeedScalar",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_dna",
+                "type": "uint256"
+            }
+        ],
+        "name": "getAccuracy",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_dna",
+                "type": "uint256"
+            }
+        ],
+        "name": "getAttack",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_dna",
+                "type": "uint256"
+            }
+        ],
+        "name": "getAttackSpeed",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_dna",
+                "type": "uint256"
+            }
+        ],
+        "name": "getDefense",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getEnduranceScore",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getIntelligenceScore",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_dna",
+                "type": "uint256"
+            }
+        ],
+        "name": "getMagic",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_dna",
+                "type": "uint256"
+            }
+        ],
+        "name": "getMovementSpeed",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getPowerScore",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_dna",
+                "type": "uint256"
+            }
+        ],
+        "name": "getResistance",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getSpeedScore",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_dna",
+                "type": "uint256"
+            }
+        ],
+        "name": "getStats",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "attack",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "accuracy",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "movementSpeed",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "attackSpeed",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "defense",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "vitality",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "resistance",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "magic",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_dna",
+                "type": "uint256"
+            }
+        ],
+        "name": "getUnicornBodyParts",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "bodyPartId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "facePartId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "hornPartId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "hoovesPartId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "manePartId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "tailPartId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint8",
+                "name": "mythicCount",
+                "type": "uint8"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_dna",
+                "type": "uint256"
+            }
+        ],
+        "name": "getUnicornBodyPartsLocal",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "bodyPartLocalId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "facePartLocalId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "hornPartLocalId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "hoovesPartLocalId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "manePartLocalId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "tailPartLocalId",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getUnicornMetadata",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "origin",
+                "type": "bool"
+            },
+            {
+                "internalType": "bool",
+                "name": "gameLocked",
+                "type": "bool"
+            },
+            {
+                "internalType": "bool",
+                "name": "limitedEdition",
+                "type": "bool"
+            },
+            {
+                "internalType": "uint256",
+                "name": "lifecycleStage",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "breedingPoints",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "unicornClass",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "hatchBirthday",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_dna",
+                "type": "uint256"
+            }
+        ],
+        "name": "getVitality",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "initializeSupportInterfaces",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getLinkTokenAddress",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getRBWTokenAddress",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getUNIMTokenAddress",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getWETHTokenAddress",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "startTokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "string[]",
+                "name": "_tokenURIs",
+                "type": "string[]"
+            }
+        ],
+        "name": "batchSetTokenURI",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_geneTier",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_upgradeChanceMajor",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_upgradeChanceMid",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_upgradeChanceMinor",
+                "type": "uint256"
+            }
+        ],
+        "name": "addBaseStatTuning",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_classId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_vitality",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_attack",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_defense",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_accuracy",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_magic",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_resistance",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_moveSpeed",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_attackSpeed",
+                "type": "uint256"
+            }
+        ],
+        "name": "addBaseStats",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_globalPartId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_localPartId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_classId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_slotId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_weight",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bool",
+                "name": "_mythic",
+                "type": "bool"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_geneId",
+                "type": "uint256"
+            }
+        ],
+        "name": "addBodyPartTuning",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_geneId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_tier",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_upgradedTierId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_application",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_weight",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_classId",
+                "type": "uint256"
+            }
+        ],
+        "name": "addClassGeneTuning",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_geneId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_tier",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_upgradedTierId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_application",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_weight",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_classGroupId",
+                "type": "uint256"
+            }
+        ],
+        "name": "addClassGroupGeneTuning",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_geneId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_bonus1Stat",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_bonus1Value",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_bonus2Stat",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_bonus2Value",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_bonus3Stat",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_bonus3Value",
+                "type": "uint256"
+            }
+        ],
+        "name": "addGeneBonusesTuning",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_geneId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_tier",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_upgradedTierId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_application",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_weight",
+                "type": "uint256"
+            }
+        ],
+        "name": "addStatGeneTuning",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "burnStoredUNIM",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address[]",
+                "name": "tokens",
+                "type": "address[]"
+            }
+        ],
+        "name": "withdrawToGameBank",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address[]",
+                "name": "tokens",
+                "type": "address[]"
+            }
+        ],
+        "name": "withdrawToOwner",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "spender",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+            }
+        ],
+        "name": "Approval",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "from",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+            }
+        ],
+        "name": "Transfer",
+        "type": "event"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "spender",
+                "type": "address"
+            }
+        ],
+        "name": "allowance",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "spender",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "approve",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+            }
+        ],
+        "name": "balanceOf",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "burn",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "burnFrom",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "decimals",
+        "outputs": [
+            {
+                "internalType": "uint8",
+                "name": "",
+                "type": "uint8"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "spender",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "subtractedValue",
+                "type": "uint256"
+            }
+        ],
+        "name": "decreaseAllowance",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "spender",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "addedValue",
+                "type": "uint256"
+            }
+        ],
+        "name": "increaseAllowance",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "recipient",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "transfer",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "sender",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "recipient",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "transferFrom",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
+            }
+        ],
+        "name": "balanceOf",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "balance",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getApproved",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "operator",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "ownerOf",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "from",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
+            }
+        ],
+        "name": "safeTransferFrom",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "operator",
+                "type": "address"
+            },
+            {
+                "internalType": "bool",
+                "name": "_approved",
+                "type": "bool"
+            }
+        ],
+        "name": "setApprovalForAll",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "index",
+                "type": "uint256"
+            }
+        ],
+        "name": "tokenOfOwnerByIndex",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    }
+]
+}
