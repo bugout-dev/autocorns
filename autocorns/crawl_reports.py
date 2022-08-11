@@ -16,7 +16,6 @@ from . import Multicall2
 from eth_typing.evm import ChecksumAddress
 
 
-
 Multicall2_address_mumbay = "0xe9939e7Ea7D7fb619Ac57f648Da7B1D425832631"
 Multicall2_address_mainnet = "0xc8E51042792d7405184DfCa245F2d27B94D013b6"
 
@@ -62,7 +61,6 @@ def unicorn_dnas(
 ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     if block_number is None:
         block_number = len(chain) - 1
-
 
     contract = DNAMigrationFacet.DNAMigrationFacet(contract_address)
 
@@ -125,9 +123,6 @@ def unicorn_dnas(
     return results, errors
 
 
-
-
-
 def handle_dnas(args: argparse.Namespace) -> None:
     network.connect(args.network)
     if args.end is None:
@@ -145,6 +140,7 @@ def handle_dnas(args: argparse.Namespace) -> None:
 
     for error in errors:
         print(json.dumps(error), file=sys.stderr)
+
 
 def generate_cli() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Crypto Unicorns genetics crawler")
@@ -166,8 +162,10 @@ def generate_cli() -> argparse.ArgumentParser:
     )
 
     dnas_parser.set_defaults(func=handle_dnas)
-    
+
     return parser
+
+
 if __name__ == "__main__":
     parser = generate_cli()
     args = parser.parse_args()
