@@ -1,4 +1,5 @@
 import argparse
+import csv
 import datetime
 import json
 import os
@@ -701,6 +702,31 @@ def handle_sob(args: argparse.Namespace) -> None:
     print(json.dumps(scores))
 
 
+def handle_leaderboard_to_csv(args: argparse.Namespace) -> None:
+    """
+    Converts leaderboard JSON file into CSV.
+    """
+    with open(args.infile, "r") as ifp:
+        leaderboard = json.load(ifp)
+
+    if len(leaderboard) == 0:
+        raise ValueError("Empty leaderboard")
+
+    points_data_columns = [key for key in leaderboard[0]["points_data"]]
+    header = ["address", "score"] + points_data_columns
+    writer = csv.writer(sys.stdout)
+    try:
+        writer.writerow(header)
+        csv_rows = [
+            [row["address"], row["score"]]
+            + [row["points_data"].get(key, 0) for key in points_data_columns]
+            for row in leaderboard
+        ]
+        writer.writerows(csv_rows)
+    except BrokenPipeError:
+        sys.exit(0)
+
+
 def generate_cli() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Crypto Unicorns genetics crawler")
     subparsers = parser.add_subparsers()
@@ -829,6 +855,16 @@ def generate_cli() -> argparse.ArgumentParser:
     total_supply_parser = subparsers.add_parser("total-supply")
     ERC721WithDiamondStorage.add_default_arguments(total_supply_parser, False)
     total_supply_parser.set_defaults(func=ERC721WithDiamondStorage.handle_total_supply)
+
+    leaderboard_to_csv_parser = subparsers.add_parser(
+        "leaderboard-to-csv",
+        description="Converts a leaderboard.json file (as produced by the sob command) into a CSV file. Output is written to stdout.",
+    )
+    leaderboard_to_csv_parser.add_argument(
+        "infile",
+        help="Path to leaderboard.json file, or a file in the same format as that one",
+    )
+    leaderboard_to_csv_parser.set_defaults(func=handle_leaderboard_to_csv)
 
     return parser
 
