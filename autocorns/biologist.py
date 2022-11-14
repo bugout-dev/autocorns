@@ -26,6 +26,7 @@ CALL_CHUNK_SIZE = 500
 # (3600/2.3)*24 is 37565.2173913.
 BLOCK_STALENESS_THRESHOLD = 37565
 
+
 Multicall2_address = "0xc8E51042792d7405184DfCa245F2d27B94D013b6"
 
 
@@ -126,7 +127,6 @@ def unicorn_dnas(
     multicaller = Multicall2.Multicall2(Multicall2_address)
 
     multicall_method = multicaller.contract.tryAggregate
-    # multicall_method = multicaller.contract.aggregate
 
     for tokens_ids_chunk in [
         token_ids[i : i + CALL_CHUNK_SIZE_DNA]
@@ -308,6 +308,91 @@ def unicorn_mythic_body_parts(
     return results, errors
 
 
+def unicorn_stats(
+    contract_address: ChecksumAddress,
+    dnas: List[Dict[str, Any]],
+    block_number: Optional[int] = None,
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+
+    if block_number is None:
+        block_number = len(chain) - 1
+
+    results: List[Dict[str, Any]] = []
+    errors: List[Dict[str, Any]] = []
+
+    tokens_metadata = []
+
+    mythic_progress_bar = tqdm(
+        total=len(dnas),
+        desc="Retrieving unicorn stats",
+    )
+
+    contract = StatsFacet.StatsFacet(contract_address)
+
+    block_number = dnas[0]["block_number"]
+
+    multicaller = Multicall2.Multicall2(Multicall2_address)
+
+    multicall_method = multicaller.contract.tryAggregate
+
+    dnas_is_present = [
+        dna for dna in dnas if dna["dna"] is not None and dna["dna"] != "None"
+    ]
+
+    CALL_CHUNK_SIZE_STATS = int(CALL_CHUNK_SIZE / 6)
+    for dnas_chunk in [
+        dnas_is_present[i : i + CALL_CHUNK_SIZE_STATS]
+        for i in range(0, len(dnas), CALL_CHUNK_SIZE_STATS)
+    ]:
+        while True:
+            try:
+
+                send_to_multicall_dnas = [dna["dna"] for dna in dnas_chunk]
+
+                make_multicall_result = make_multicall(
+                    multicall_method,
+                    contract.contract.getStats,
+                    contract_address,
+                    send_to_multicall_dnas,
+                    block_number=block_number,
+                )
+                tokens_metadata.extend(make_multicall_result)
+                mythic_progress_bar.update(len(send_to_multicall_dnas))
+                break
+            except ValueError:
+                time.sleep(1)
+                continue
+            except Exception as e:
+                print(e, file=sys.stderr)
+                print(send_to_multicall_dnas, file=sys.stderr)
+                raise e
+
+    stats_order = [
+        "attack",
+        "accuracy",
+        "movement_speed",
+        "attack_speed",
+        "defense",
+        "vitality",
+        "resistance",
+        "magic",
+    ]
+
+    for item, token_data in zip(dnas_is_present, tokens_metadata):
+        if token_data is None:
+            errors.append(f"No DNA for token ID: {item['token_id']}")
+            # Token item['token_id']} has no DNA
+            continue
+        stats_data = {
+            stat_name: stat_value
+            for stat_name, stat_value in zip(stats_order, token_data)
+        }
+        result = {**item, **stats_data}
+        results.append(result)
+
+    return results, errors
+
+
 def handle_dnas(args: argparse.Namespace) -> None:
     network.connect(args.network)
     fresh_checkpoint_data = []
@@ -390,6 +475,42 @@ def handle_mythic_body_parts(args: argparse.Namespace) -> None:
     dnas = apply_checkpoint(all_dnas, fresh_checkpoint_data, "token_id", "token_id")
 
     results, errors = unicorn_mythic_body_parts(
+        args.address,
+        dnas,
+        args.block_number,
+    )
+
+    if args.checkpoint:
+        with open(args.checkpoint, "w") as ofp:
+            for result in results + fresh_checkpoint_data:
+                print(json.dumps(result), file=ofp)
+    else:
+        for result in results:
+            print(json.dumps(result))
+
+    for error in errors:
+        json.dump(error, fp=sys.stderr)
+        print("", file=sys.stderr)
+
+
+def handle_stats(args: argparse.Namespace) -> None:
+    network.connect(args.network)
+    fresh_checkpoint_data = []
+    if args.checkpoint:
+        block_number = len(chain)
+        checkpoint_data = load_checkpoint_data(args.checkpoint)
+        fresh_checkpoint_data = expire_stale_checkpoint_data(
+            checkpoint_data, block_number - BLOCK_STALENESS_THRESHOLD
+        )
+
+    all_dnas: List[Dict[str, Any]] = []
+    with open(args.dnas, "r") as ifp:
+        for line in ifp:
+            all_dnas.append(json.loads(line.strip()))
+
+    dnas = apply_checkpoint(all_dnas, fresh_checkpoint_data, "token_id", "token_id")
+
+    results, errors = unicorn_stats(
         args.address,
         dnas,
         args.block_number,
@@ -869,6 +990,19 @@ def generate_cli() -> argparse.ArgumentParser:
     )
 
     mythic_body_parts_parser.set_defaults(func=handle_mythic_body_parts)
+
+    stats_parser = subparsers.add_parser("stats")
+    StatsFacet.add_default_arguments(stats_parser, False)
+    stats_parser.add_argument(
+        "--dnas",
+        required=True,
+        help='Path to JSON file containing results of "autocorns biologist dnas".',
+    )
+    stats_parser.add_argument(
+        "--checkpoint", default=None, help="Checkpoint file (optional)"
+    )
+
+    stats_parser.set_defaults(func=handle_stats)
 
     merge_parser = subparsers.add_parser("merge")
     merge_parser.add_argument(
