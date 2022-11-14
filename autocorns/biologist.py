@@ -387,8 +387,11 @@ def unicorn_stats(
             stat_name: stat_value
             for stat_name, stat_value in zip(stats_order, token_data)
         }
-        result = {**item, **stats_data}
-        results.append(result)
+        try:
+            result = {**item, **stats_data, "sum_stats": sum(token_data)}
+            results.append(result)
+        except:
+            errors.append(f"Could not process stats for token ID: {item['token_id']}")
 
     return results, errors
 
@@ -909,6 +912,99 @@ def handle_sob(args: argparse.Namespace) -> None:
     print(json.dumps(scores))
 
 
+def handle_fall_event_2022(args: argparse.Namespace) -> None:
+    mythic_body_parts_index: Dict[str, Dict[str, Any]] = {}
+    with open(args.mythic_body_parts, "r") as ifp:
+        for line in ifp:
+            item = json.loads(line.strip())
+            mythic_body_parts_index[str(item["token_id"])] = item
+
+    stats_index: Dict[str, Dict[str, Any]] = {}
+    with open(args.stats, "r") as ifp:
+        for line in ifp:
+            item = json.loads(line.strip())
+            stats_index[str(item["token_id"])] = item
+
+    with open(args.breeding_hatching_events, "r") as ifp:
+        breeding_hatching_data = json.load(ifp)
+
+    with open(args.evolution_events, "r") as ifp:
+        evolution_data = json.load(ifp)
+
+    moonstream_breeding_hatching_data: List[Dict[str, Any]] = breeding_hatching_data[
+        "data"
+    ]
+
+    breeding_events: List[Dict[str, Any]] = [
+        event
+        for event in moonstream_breeding_hatching_data
+        if event["event_type"] == "breeding"
+    ]
+    hatching_events: List[Dict[str, Any]] = [
+        event
+        for event in moonstream_breeding_hatching_data
+        if event["event_type"] == "hatchingEggs"
+    ]
+    evolution_events: List[Dict[str, Any]] = evolution_data["data"]
+
+    default_player_points = {
+        "num_bred": 0,
+        "num_evolved": 0,
+        "num_evolved_with_at_least_1300_stat_points": 0,
+        "num_mythic_body_parts_hatched": 0,
+    }
+
+    player_points: Dict[str, Dict[str, int]] = {}
+    for event in breeding_events:
+        player = event["player_wallet"]
+        if player_points.get(player) is None:
+            player_points[player] = {**default_player_points}
+
+        player_points[player]["num_bred"] += 1
+
+    for event in hatching_events:
+        player = event["player_wallet"]
+        if player_points.get(player) is None:
+            player_points[player] = {**default_player_points}
+
+        token_id = str(event["token"])
+        mythic_body_parts_info = mythic_body_parts_index[token_id]
+        player_points[player][
+            "num_mythic_body_parts_hatched"
+        ] += mythic_body_parts_info["num_mythic_body_parts"]
+
+    for event in evolution_events:
+        player = event["player_wallet"]
+        if player_points.get(player) is None:
+            player_points[player] = {**default_player_points}
+
+        player_points[player]["num_evolved"] += 1
+        token_id = str(event["token"])
+        sum_stats = stats_index.get(token_id, {}).get("sum_stats", 0)
+        if sum_stats >= 1300:
+            player_points[player]["num_evolved_with_at_least_1300_stat_points"] += 1
+
+    scores: List[Dict[str, Any]] = []
+    for player, points in player_points.items():
+        total_score = (
+            100 * points["num_evolved_with_at_least_1300_stat_points"]
+            + 50 * points["num_mythic_body_parts_hatched"]
+            + 25 * points["num_evolved_with_at_least_1300_stat_points"]
+            + 10 * points["num_bred"]
+        )
+        scores.append(
+            {
+                "address": player,
+                "score": total_score,
+                "points_data": points,
+            }
+        )
+
+    scores.sort(key=lambda item: item["score"], reverse=True)
+
+    print(json.dumps(scores))
+
+
 def handle_leaderboard_to_csv(args: argparse.Namespace) -> None:
     """
     Converts leaderboard JSON file into CSV.
@@ -1036,6 +1132,28 @@ def generate_cli() -> argparse.ArgumentParser:
     )
 
     sob_parser.set_defaults(func=handle_sob)
+
+    fall_event_2022_parser = subparsers.add_parser("fall-event-2022")
+    fall_event_2022_parser.add_argument(
+        "--mythic-body-parts",
+        required=True,
+        help="Checkpoint file for mythic body parts",
+    )
+    fall_event_2022_parser.add_argument(
+        "--stats", required=True, help="Checkpoint file for Unicorn stats"
+    )
+    fall_event_2022_parser.add_argument(
+        "--breeding-hatching-events",
+        required=True,
+        help="JSON file containing the results of the breeding_hatching_events Moonstream Query",
+    )
+    fall_event_2022_parser.add_argument(
+        "--evolution-events",
+        required=True,
+        help="JSON file containing the results of the evolution_events Moonstream Query",
+    )
+
+    fall_event_2022_parser.set_defaults(func=handle_fall_event_2022)
 
     moonstream_events_parser = subparsers.add_parser("moonstream-events")
     moonstream_events_parser.add_argument(
