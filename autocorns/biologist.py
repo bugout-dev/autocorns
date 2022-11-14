@@ -5,7 +5,7 @@ import json
 import os
 import sys
 import time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, cast, Dict, List, Optional, Set, Tuple
 
 
 from brownie import network, web3
@@ -21,9 +21,52 @@ from eth_typing.evm import ChecksumAddress
 
 
 CALL_CHUNK_SIZE = 500
-
+# BLOCK_STALENESS_THRESHOLD estimated using a Polygon block interval of 2.3 seconds per block to get
+# us close to 24 hours of freshness in a checkpoint:
+# (3600/2.3)*24 is 37565.2173913.
+BLOCK_STALENESS_THRESHOLD = 37565
 
 Multicall2_address = "0xc8E51042792d7405184DfCa245F2d27B94D013b6"
+
+
+def load_checkpoint_data(checkpoint_file: Optional[str]) -> List[Dict[str, Any]]:
+    checkpoint_data: List[Dict[str, Any]] = []
+    if checkpoint_file is None or not os.path.exists(checkpoint_file):
+        return []
+
+    with open(checkpoint_file, "r") as ifp:
+        for line in ifp:
+            stripped_line = line.strip()
+            if stripped_line:
+                item = cast(Dict[str, Any], json.loads(stripped_line))
+                checkpoint_data.append(item)
+    return checkpoint_data
+
+
+def expire_stale_checkpoint_data(
+    checkpoint_data: List[Dict[str, Any]], min_block_number: int
+) -> List[Dict[str, Any]]:
+    return [
+        item
+        for item in checkpoint_data
+        if item.get("block_number", 0) >= min_block_number
+    ]
+
+
+def apply_checkpoint(
+    job_list: List[Any],
+    checkpoint_data: List[Dict[str, Any]],
+    checkpoint_key: str,
+    job_list_key: Optional[str] = None,
+) -> List[Any]:
+    checkpointed_jobs = {item.get(checkpoint_key) for item in checkpoint_data}
+    if job_list_key is None:
+        uncheckpointed_jobs = [job for job in job_list if job not in checkpointed_jobs]
+    else:
+        uncheckpointed_jobs = [
+            job for job in job_list if job[job_list_key] not in checkpointed_jobs
+        ]
+    return uncheckpointed_jobs
 
 
 def make_multicall(
@@ -267,18 +310,31 @@ def unicorn_mythic_body_parts(
 
 def handle_dnas(args: argparse.Namespace) -> None:
     network.connect(args.network)
+    fresh_checkpoint_data = []
+    if args.checkpoint:
+        block_number = len(chain)
+        checkpoint_data = load_checkpoint_data(args.checkpoint)
+        fresh_checkpoint_data = expire_stale_checkpoint_data(
+            checkpoint_data, block_number - BLOCK_STALENESS_THRESHOLD
+        )
     if args.end is None:
         args.end = args.start
     assert args.start <= args.end, "Starting token ID must not exceed ending token ID"
-    token_ids = range(args.start, args.end + 1)
+    all_token_ids = range(args.start, args.end + 1)
+    token_ids = apply_checkpoint(all_token_ids, fresh_checkpoint_data, "token_id")
     results, errors = unicorn_dnas(
         args.address,
         token_ids,
         args.block_number,
     )
 
-    for result in results:
-        print(json.dumps(result))
+    if args.checkpoint:
+        with open(args.checkpoint, "w") as ofp:
+            for result in results + fresh_checkpoint_data:
+                print(json.dumps(result), file=ofp)
+    else:
+        for result in results:
+            print(json.dumps(result))
 
     for error in errors:
         print(json.dumps(error), file=sys.stderr)
@@ -286,18 +342,31 @@ def handle_dnas(args: argparse.Namespace) -> None:
 
 def handle_metadata(args: argparse.Namespace) -> None:
     network.connect(args.network)
+    fresh_checkpoint_data = []
+    if args.checkpoint:
+        block_number = len(chain)
+        checkpoint_data = load_checkpoint_data(args.checkpoint)
+        fresh_checkpoint_data = expire_stale_checkpoint_data(
+            checkpoint_data, block_number - BLOCK_STALENESS_THRESHOLD
+        )
     if args.end is None:
         args.end = args.start
     assert args.start <= args.end, "Starting token ID must not exceed ending token ID"
-    token_ids = range(args.start, args.end + 1)
+    all_token_ids = range(args.start, args.end + 1)
+    token_ids = apply_checkpoint(all_token_ids, fresh_checkpoint_data, "token_id")
     results, errors = unicorn_metadata(
         args.address,
         token_ids,
         args.block_number,
     )
 
-    for result in results:
-        print(json.dumps(result))
+    if args.checkpoint:
+        with open(args.checkpoint, "w") as ofp:
+            for result in results + fresh_checkpoint_data:
+                print(json.dumps(result), file=ofp)
+    else:
+        for result in results:
+            print(json.dumps(result))
 
     for error in errors:
         print(json.dumps(error), file=sys.stderr)
@@ -305,11 +374,20 @@ def handle_metadata(args: argparse.Namespace) -> None:
 
 def handle_mythic_body_parts(args: argparse.Namespace) -> None:
     network.connect(args.network)
+    fresh_checkpoint_data = []
+    if args.checkpoint:
+        block_number = len(chain)
+        checkpoint_data = load_checkpoint_data(args.checkpoint)
+        fresh_checkpoint_data = expire_stale_checkpoint_data(
+            checkpoint_data, block_number - BLOCK_STALENESS_THRESHOLD
+        )
 
-    dnas: List[Dict[str, Any]] = []
+    all_dnas: List[Dict[str, Any]] = []
     with open(args.dnas, "r") as ifp:
         for line in ifp:
-            dnas.append(json.loads(line.strip()))
+            all_dnas.append(json.loads(line.strip()))
+
+    dnas = apply_checkpoint(all_dnas, fresh_checkpoint_data, "token_id", "token_id")
 
     results, errors = unicorn_mythic_body_parts(
         args.address,
@@ -317,9 +395,13 @@ def handle_mythic_body_parts(args: argparse.Namespace) -> None:
         args.block_number,
     )
 
-    for result in results:
-        json.dump(result, fp=sys.stdout)
-        print("")
+    if args.checkpoint:
+        with open(args.checkpoint, "w") as ofp:
+            for result in results + fresh_checkpoint_data:
+                print(json.dumps(result), file=ofp)
+    else:
+        for result in results:
+            print(json.dumps(result))
 
     for error in errors:
         json.dump(error, fp=sys.stderr)
@@ -353,6 +435,7 @@ def handle_merge(args: argparse.Namespace) -> None:
             result = {**data, **mythic_body_parts_data}
             del result["block_number"]
             result["metadata_block_number"] = data["block_number"]
+            lifecycle_stage = data["lifecycle_stage"]
             result["mythic_body_parts_block_number"] = mythic_body_parts_data[
                 "block_number"
             ]
@@ -361,7 +444,10 @@ def handle_merge(args: argparse.Namespace) -> None:
                 and result["lifecycle_stage"] == 0
             ):
                 result["num_mythic_body_parts"] = 0
-            if mythic_body_parts_data.get("num_mythic_body_parts") == 6:
+            if (
+                mythic_body_parts_data.get("num_mythic_body_parts") == 6
+                and lifecycle_stage == 0
+            ):
                 result["num_mythic_body_parts"] = 0
             result["is_mythic"] = result["num_mythic_body_parts"] > 0
             result["is_hidden_class"] = result["class_number"] in hidden_classes
@@ -745,6 +831,9 @@ def generate_cli() -> argparse.ArgumentParser:
         required=False,
         help="Ending token ID to get DNA for. (If not set, just gets the DNA for the token with the --start token ID.)",
     )
+    dnas_parser.add_argument(
+        "--checkpoint", default=None, help="Checkpoint file (optional)"
+    )
 
     dnas_parser.set_defaults(func=handle_dnas)
 
@@ -762,6 +851,9 @@ def generate_cli() -> argparse.ArgumentParser:
         required=False,
         help="Ending token ID to get DNA for. (If not set, just gets the DNA for the token with the --start token ID.)",
     )
+    metadata_parser.add_argument(
+        "--checkpoint", default=None, help="Checkpoint file (optional)"
+    )
 
     metadata_parser.set_defaults(func=handle_metadata)
 
@@ -771,6 +863,9 @@ def generate_cli() -> argparse.ArgumentParser:
         "--dnas",
         required=True,
         help='Path to JSON file containing results of "autocorns biologist dnas".',
+    )
+    mythic_body_parts_parser.add_argument(
+        "--checkpoint", default=None, help="Checkpoint file (optional)"
     )
 
     mythic_body_parts_parser.set_defaults(func=handle_mythic_body_parts)
