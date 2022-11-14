@@ -1,7 +1,6 @@
 import argparse
 
-from . import warden, biologist, crawl_reports, crawl_reports_2
-
+from . import warden, biologist, crawl_reports
 
 def main():
     parser = argparse.ArgumentParser(
@@ -18,9 +17,6 @@ def main():
 
     crawler_parser = crawl_reports.generate_cli()
     subparsers.add_parser("dna-reports", parents=[crawler_parser], add_help=False)
-
-    crawler_parser_2 = crawl_reports_2.generate_cli()
-    subparsers.add_parser("dna-reports-2", parents=[crawler_parser_2], add_help=False)
 
     args = parser.parse_args()
     args.func(args)
