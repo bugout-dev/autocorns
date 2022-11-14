@@ -20,14 +20,15 @@ Multicall2_address_mainnet = "0xc8E51042792d7405184DfCa245F2d27B94D013b6"
 CALL_CHUNK_SIZE = 1000
 
 
-def get_dna_results(results: List[Dict[str, Any]]):
+def get_json_data(filename: str):
+    x = open(filename, "r")
+    y = json.loads(x.read())
     json_token_ids = []
     json_live_dna = []
-
-    for i in results:
+    for i in y:
         json_token_ids.append(int(i["token_id"]))
         json_live_dna.append(i["live"])
-
+    x.close()
     return json_token_ids, json_live_dna
 
 
@@ -148,7 +149,7 @@ def call_token_dnas(contract_address, token_ids, block_number):
 
 def check_unicorn_dnas(
     contract_address: ChecksumAddress,
-    dna_results: List[Dict[str, Any]],
+    filename: str,
     block_number: Optional[int] = None,
 ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     if block_number is None:
@@ -158,7 +159,7 @@ def check_unicorn_dnas(
 
     errors: List[Dict[str, Any]] = []
 
-    token_ids, live_before = get_dna_results(dna_results)
+    token_ids, live_before = get_json_data(filename)
 
     tokens_dnas = call_token_dnas(contract_address, token_ids, block_number)
 
@@ -229,13 +230,16 @@ def handle_dnas(args: argparse.Namespace) -> None:
         ), "Starting token ID must not exceed ending token ID"
         token_ids = range(args.start, args.end + 1)
 
-    dnaReport(token_ids, args.address, args.block_number)
+    if token_ids is None and args.filename is not None:
+        verifyDnaReport(args.filename, args.address, args.block_number)
+    else:
+        dnaReport(token_ids, args.address, args.block_number)
 
 
-def verifyDnaReport(dna_results, token_address, block_number):
+def verifyDnaReport(filename, token_address, block_number):
     results, errors = check_unicorn_dnas(
         token_address,
-        dna_results,
+        filename,
         block_number,
     )
 
@@ -253,10 +257,12 @@ def dnaReport(token_ids, token_address, block_number):
         block_number,
     )
 
+    print(json.dumps(results))
+
     for error in errors:
         print(json.dumps(error), file=sys.stderr)
 
-    verifyDnaReport(results, token_address, block_number)
+    
 
 
 def generate_cli() -> argparse.ArgumentParser:
@@ -279,6 +285,12 @@ def generate_cli() -> argparse.ArgumentParser:
     )
     dnas_parser.add_argument(
         "--tokenIDs", required=False, help="List of tokenIDs to get DNA for.", nargs="+"
+    )
+    dnas_parser.add_argument(
+        "--filename",
+        type=str,
+        required=False,
+        help="JSON Output Filename from previous crawler",
     )
 
     dnas_parser.set_defaults(func=handle_dnas)
