@@ -987,10 +987,10 @@ def handle_fall_event_2022(args: argparse.Namespace) -> None:
     scores: List[Dict[str, Any]] = []
     for player, points in player_points.items():
         total_score = (
-            100 * points["num_evolved_with_at_least_1300_stat_points"]
-            + 50 * points["num_mythic_body_parts_hatched"]
-            + 25 * points["num_evolved_with_at_least_1300_stat_points"]
-            + 10 * points["num_bred"]
+            (100 * points["num_evolved_with_at_least_1300_stat_points"])
+            + (50 * points["num_mythic_body_parts_hatched"])
+            + (25 * points["num_evolved"])
+            + (10 * points["num_bred"])
         )
         scores.append(
             {
