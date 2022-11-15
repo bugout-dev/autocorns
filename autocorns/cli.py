@@ -1,6 +1,6 @@
 import argparse
 
-from . import warden, biologist, crawl_reports
+from . import warden, biologist, crawl_reports, dark_altar
 
 
 def main():
@@ -18,6 +18,9 @@ def main():
 
     crawler_parser = crawl_reports.generate_cli()
     subparsers.add_parser("dna-reports", parents=[crawler_parser], add_help=False)
+
+    dark_altar_parser = dark_altar.generate_cli()
+    subparsers.add_parser("dark-altar", parents=[dark_altar_parser], add_help=False)
 
     args = parser.parse_args()
     args.func(args)
