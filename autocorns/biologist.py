@@ -592,6 +592,7 @@ def handle_moonstream_events(args: argparse.Namespace) -> None:
     # Assume our clock is not drifting too much from AWS clocks.
     if_modified_since_datetime = datetime.datetime.utcnow()
     if_modified_since = if_modified_since_datetime.strftime("%a, %d %b %Y %H:%M:%S GMT")
+    time.sleep(4)
     end_timestamp = int(time.time())
     if args.end is not None:
         end_timestamp = args.end
@@ -925,6 +926,12 @@ def handle_fall_event_2022(args: argparse.Namespace) -> None:
             item = json.loads(line.strip())
             stats_index[str(item["token_id"])] = item
 
+    metadata_index: Dict[str, Dict[str, Any]] = {}
+    with open(args.metadata, "r") as ifp:
+        for line in ifp:
+            item = json.loads(line.strip())
+            metadata_index[str(item["token_id"])] = item
+
     with open(args.breeding_hatching_events, "r") as ifp:
         breeding_hatching_data = json.load(ifp)
 
@@ -969,9 +976,14 @@ def handle_fall_event_2022(args: argparse.Namespace) -> None:
 
         token_id = str(event["token"])
         mythic_body_parts_info = mythic_body_parts_index[token_id]
-        player_points[player][
-            "num_mythic_body_parts_hatched"
-        ] += mythic_body_parts_info["num_mythic_body_parts"]
+        if metadata_index.get(token_id) is not None:
+            if (
+                metadata_index[token_id].get("lifecycle_stage") is not None
+                and metadata_index[token_id]["lifecycle_stage"] != 0
+            ):
+                player_points[player][
+                    "num_mythic_body_parts_hatched"
+                ] += mythic_body_parts_info["num_mythic_body_parts"]
 
     for event in evolution_events:
         player = event["player_wallet"]
@@ -1141,6 +1153,11 @@ def generate_cli() -> argparse.ArgumentParser:
     )
     fall_event_2022_parser.add_argument(
         "--stats", required=True, help="Checkpoint file for Unicorn stats"
+    )
+    fall_event_2022_parser.add_argument(
+        "--metadata",
+        required=True,
+        help="Checkpoint file for Unicorn metadata",
     )
     fall_event_2022_parser.add_argument(
         "--breeding-hatching-events",

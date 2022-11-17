@@ -35,6 +35,13 @@ time autocorns biologist dnas \
     --end $TOTAL_SUPPLY \
     --checkpoint "$DATA_DIR/dnas.json"
 
+time autocorns biologist metadata \
+    --network $BROWNIE_NETWORK \
+    --address $CU_ADDRESS \
+    --start 1 \
+    --end $TOTAL_SUPPLY \
+    --checkpoint "$DATA_DIR/metadata.json"
+
 time autocorns biologist mythic-body-parts \
     --network $BROWNIE_NETWORK \
     --address $CU_ADDRESS \
@@ -68,6 +75,7 @@ time autocorns biologist fall-event-2022  \
     --stats "$DATA_DIR/stats.json" \
     --breeding-hatching-events "$DATA_DIR/breeding_hatching_leaderboard_events.json" \
     --evolution-events "$DATA_DIR/evolution_leaderboard_events.json" \
+    --metadata "$DATA_DIR/metadata.json" \
     >"$DATA_DIR/leaderboard.json"
 
 echo "Done!"
