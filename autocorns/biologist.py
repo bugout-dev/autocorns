@@ -5,7 +5,7 @@ import json
 import os
 import sys
 import time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, cast, Dict, List, Optional, Set, Tuple
 
 
 from brownie import network, web3
@@ -21,9 +21,53 @@ from eth_typing.evm import ChecksumAddress
 
 
 CALL_CHUNK_SIZE = 500
+# BLOCK_STALENESS_THRESHOLD estimated using a Polygon block interval of 2.3 seconds per block to get
+# us close to 24 hours of freshness in a checkpoint:
+# (3600/2.3)*24 is 37565.2173913.
+BLOCK_STALENESS_THRESHOLD = 37565
 
 
 Multicall2_address = "0xc8E51042792d7405184DfCa245F2d27B94D013b6"
+
+
+def load_checkpoint_data(checkpoint_file: Optional[str]) -> List[Dict[str, Any]]:
+    checkpoint_data: List[Dict[str, Any]] = []
+    if checkpoint_file is None or not os.path.exists(checkpoint_file):
+        return []
+
+    with open(checkpoint_file, "r") as ifp:
+        for line in ifp:
+            stripped_line = line.strip()
+            if stripped_line:
+                item = cast(Dict[str, Any], json.loads(stripped_line))
+                checkpoint_data.append(item)
+    return checkpoint_data
+
+
+def expire_stale_checkpoint_data(
+    checkpoint_data: List[Dict[str, Any]], min_block_number: int
+) -> List[Dict[str, Any]]:
+    return [
+        item
+        for item in checkpoint_data
+        if item.get("block_number", 0) >= min_block_number
+    ]
+
+
+def apply_checkpoint(
+    job_list: List[Any],
+    checkpoint_data: List[Dict[str, Any]],
+    checkpoint_key: str,
+    job_list_key: Optional[str] = None,
+) -> List[Any]:
+    checkpointed_jobs = {item.get(checkpoint_key) for item in checkpoint_data}
+    if job_list_key is None:
+        uncheckpointed_jobs = [job for job in job_list if job not in checkpointed_jobs]
+    else:
+        uncheckpointed_jobs = [
+            job for job in job_list if job[job_list_key] not in checkpointed_jobs
+        ]
+    return uncheckpointed_jobs
 
 
 def make_multicall(
@@ -83,7 +127,6 @@ def unicorn_dnas(
     multicaller = Multicall2.Multicall2(Multicall2_address)
 
     multicall_method = multicaller.contract.tryAggregate
-    # multicall_method = multicaller.contract.aggregate
 
     for tokens_ids_chunk in [
         token_ids[i : i + CALL_CHUNK_SIZE_DNA]
@@ -265,20 +308,121 @@ def unicorn_mythic_body_parts(
     return results, errors
 
 
+def unicorn_stats(
+    contract_address: ChecksumAddress,
+    dnas: List[Dict[str, Any]],
+    block_number: Optional[int] = None,
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+
+    if block_number is None:
+        block_number = len(chain) - 1
+
+    results: List[Dict[str, Any]] = []
+    errors: List[Dict[str, Any]] = []
+
+    tokens_metadata = []
+
+    mythic_progress_bar = tqdm(
+        total=len(dnas),
+        desc="Retrieving unicorn stats",
+    )
+
+    contract = StatsFacet.StatsFacet(contract_address)
+
+    block_number = dnas[0]["block_number"]
+
+    multicaller = Multicall2.Multicall2(Multicall2_address)
+
+    multicall_method = multicaller.contract.tryAggregate
+
+    dnas_is_present = [
+        dna for dna in dnas if dna["dna"] is not None and dna["dna"] != "None"
+    ]
+
+    CALL_CHUNK_SIZE_STATS = int(CALL_CHUNK_SIZE / 6)
+    for dnas_chunk in [
+        dnas_is_present[i : i + CALL_CHUNK_SIZE_STATS]
+        for i in range(0, len(dnas), CALL_CHUNK_SIZE_STATS)
+    ]:
+        while True:
+            try:
+
+                send_to_multicall_dnas = [dna["dna"] for dna in dnas_chunk]
+
+                make_multicall_result = make_multicall(
+                    multicall_method,
+                    contract.contract.getStats,
+                    contract_address,
+                    send_to_multicall_dnas,
+                    block_number=block_number,
+                )
+                tokens_metadata.extend(make_multicall_result)
+                mythic_progress_bar.update(len(send_to_multicall_dnas))
+                break
+            except ValueError:
+                time.sleep(1)
+                continue
+            except Exception as e:
+                print(e, file=sys.stderr)
+                print(send_to_multicall_dnas, file=sys.stderr)
+                raise e
+
+    stats_order = [
+        "attack",
+        "accuracy",
+        "movement_speed",
+        "attack_speed",
+        "defense",
+        "vitality",
+        "resistance",
+        "magic",
+    ]
+
+    for item, token_data in zip(dnas_is_present, tokens_metadata):
+        if token_data is None:
+            errors.append(f"No DNA for token ID: {item['token_id']}")
+            # Token item['token_id']} has no DNA
+            continue
+        stats_data = {
+            stat_name: stat_value
+            for stat_name, stat_value in zip(stats_order, token_data)
+        }
+        try:
+            result = {**item, **stats_data, "sum_stats": sum(token_data)}
+            results.append(result)
+        except:
+            errors.append(f"Could not process stats for token ID: {item['token_id']}")
+
+    return results, errors
+
+
 def handle_dnas(args: argparse.Namespace) -> None:
     network.connect(args.network)
+    fresh_checkpoint_data = []
+    if args.checkpoint:
+        block_number = len(chain)
+        checkpoint_data = load_checkpoint_data(args.checkpoint)
+        fresh_checkpoint_data = expire_stale_checkpoint_data(
+            checkpoint_data, block_number - BLOCK_STALENESS_THRESHOLD
+        )
     if args.end is None:
         args.end = args.start
     assert args.start <= args.end, "Starting token ID must not exceed ending token ID"
-    token_ids = range(args.start, args.end + 1)
+    all_token_ids = range(args.start, args.end + 1)
+    token_ids = apply_checkpoint(all_token_ids, fresh_checkpoint_data, "token_id")
     results, errors = unicorn_dnas(
         args.address,
         token_ids,
         args.block_number,
     )
 
-    for result in results:
-        print(json.dumps(result))
+    if args.checkpoint:
+        with open(args.checkpoint, "w") as ofp:
+            for result in results + fresh_checkpoint_data:
+                print(json.dumps(result), file=ofp)
+    else:
+        for result in results:
+            print(json.dumps(result))
 
     for error in errors:
         print(json.dumps(error), file=sys.stderr)
@@ -286,18 +430,31 @@ def handle_dnas(args: argparse.Namespace) -> None:
 
 def handle_metadata(args: argparse.Namespace) -> None:
     network.connect(args.network)
+    fresh_checkpoint_data = []
+    if args.checkpoint:
+        block_number = len(chain)
+        checkpoint_data = load_checkpoint_data(args.checkpoint)
+        fresh_checkpoint_data = expire_stale_checkpoint_data(
+            checkpoint_data, block_number - BLOCK_STALENESS_THRESHOLD
+        )
     if args.end is None:
         args.end = args.start
     assert args.start <= args.end, "Starting token ID must not exceed ending token ID"
-    token_ids = range(args.start, args.end + 1)
+    all_token_ids = range(args.start, args.end + 1)
+    token_ids = apply_checkpoint(all_token_ids, fresh_checkpoint_data, "token_id")
     results, errors = unicorn_metadata(
         args.address,
         token_ids,
         args.block_number,
     )
 
-    for result in results:
-        print(json.dumps(result))
+    if args.checkpoint:
+        with open(args.checkpoint, "w") as ofp:
+            for result in results + fresh_checkpoint_data:
+                print(json.dumps(result), file=ofp)
+    else:
+        for result in results:
+            print(json.dumps(result))
 
     for error in errors:
         print(json.dumps(error), file=sys.stderr)
@@ -305,11 +462,20 @@ def handle_metadata(args: argparse.Namespace) -> None:
 
 def handle_mythic_body_parts(args: argparse.Namespace) -> None:
     network.connect(args.network)
+    fresh_checkpoint_data = []
+    if args.checkpoint:
+        block_number = len(chain)
+        checkpoint_data = load_checkpoint_data(args.checkpoint)
+        fresh_checkpoint_data = expire_stale_checkpoint_data(
+            checkpoint_data, block_number - BLOCK_STALENESS_THRESHOLD
+        )
 
-    dnas: List[Dict[str, Any]] = []
+    all_dnas: List[Dict[str, Any]] = []
     with open(args.dnas, "r") as ifp:
         for line in ifp:
-            dnas.append(json.loads(line.strip()))
+            all_dnas.append(json.loads(line.strip()))
+
+    dnas = apply_checkpoint(all_dnas, fresh_checkpoint_data, "token_id", "token_id")
 
     results, errors = unicorn_mythic_body_parts(
         args.address,
@@ -317,9 +483,49 @@ def handle_mythic_body_parts(args: argparse.Namespace) -> None:
         args.block_number,
     )
 
-    for result in results:
-        json.dump(result, fp=sys.stdout)
-        print("")
+    if args.checkpoint:
+        with open(args.checkpoint, "w") as ofp:
+            for result in results + fresh_checkpoint_data:
+                print(json.dumps(result), file=ofp)
+    else:
+        for result in results:
+            print(json.dumps(result))
+
+    for error in errors:
+        json.dump(error, fp=sys.stderr)
+        print("", file=sys.stderr)
+
+
+def handle_stats(args: argparse.Namespace) -> None:
+    network.connect(args.network)
+    fresh_checkpoint_data = []
+    if args.checkpoint:
+        block_number = len(chain)
+        checkpoint_data = load_checkpoint_data(args.checkpoint)
+        fresh_checkpoint_data = expire_stale_checkpoint_data(
+            checkpoint_data, block_number - BLOCK_STALENESS_THRESHOLD
+        )
+
+    all_dnas: List[Dict[str, Any]] = []
+    with open(args.dnas, "r") as ifp:
+        for line in ifp:
+            all_dnas.append(json.loads(line.strip()))
+
+    dnas = apply_checkpoint(all_dnas, fresh_checkpoint_data, "token_id", "token_id")
+
+    results, errors = unicorn_stats(
+        args.address,
+        dnas,
+        args.block_number,
+    )
+
+    if args.checkpoint:
+        with open(args.checkpoint, "w") as ofp:
+            for result in results + fresh_checkpoint_data:
+                print(json.dumps(result), file=ofp)
+    else:
+        for result in results:
+            print(json.dumps(result))
 
     for error in errors:
         json.dump(error, fp=sys.stderr)
@@ -353,6 +559,7 @@ def handle_merge(args: argparse.Namespace) -> None:
             result = {**data, **mythic_body_parts_data}
             del result["block_number"]
             result["metadata_block_number"] = data["block_number"]
+            lifecycle_stage = data["lifecycle_stage"]
             result["mythic_body_parts_block_number"] = mythic_body_parts_data[
                 "block_number"
             ]
@@ -361,7 +568,10 @@ def handle_merge(args: argparse.Namespace) -> None:
                 and result["lifecycle_stage"] == 0
             ):
                 result["num_mythic_body_parts"] = 0
-            if mythic_body_parts_data.get("num_mythic_body_parts") == 6:
+            if (
+                mythic_body_parts_data.get("num_mythic_body_parts") == 6
+                and lifecycle_stage == 0
+            ):
                 result["num_mythic_body_parts"] = 0
             result["is_mythic"] = result["num_mythic_body_parts"] > 0
             result["is_hidden_class"] = result["class_number"] in hidden_classes
@@ -382,6 +592,7 @@ def handle_moonstream_events(args: argparse.Namespace) -> None:
     # Assume our clock is not drifting too much from AWS clocks.
     if_modified_since_datetime = datetime.datetime.utcnow()
     if_modified_since = if_modified_since_datetime.strftime("%a, %d %b %Y %H:%M:%S GMT")
+    time.sleep(4)
     end_timestamp = int(time.time())
     if args.end is not None:
         end_timestamp = args.end
@@ -702,6 +913,110 @@ def handle_sob(args: argparse.Namespace) -> None:
     print(json.dumps(scores))
 
 
+def handle_fall_event_2022(args: argparse.Namespace) -> None:
+    mythic_body_parts_index: Dict[str, Dict[str, Any]] = {}
+    with open(args.mythic_body_parts, "r") as ifp:
+        for line in ifp:
+            item = json.loads(line.strip())
+            mythic_body_parts_index[str(item["token_id"])] = item
+
+    stats_index: Dict[str, Dict[str, Any]] = {}
+    with open(args.stats, "r") as ifp:
+        for line in ifp:
+            item = json.loads(line.strip())
+            stats_index[str(item["token_id"])] = item
+
+    metadata_index: Dict[str, Dict[str, Any]] = {}
+    with open(args.metadata, "r") as ifp:
+        for line in ifp:
+            item = json.loads(line.strip())
+            metadata_index[str(item["token_id"])] = item
+
+    with open(args.breeding_hatching_events, "r") as ifp:
+        breeding_hatching_data = json.load(ifp)
+
+    with open(args.evolution_events, "r") as ifp:
+        evolution_data = json.load(ifp)
+
+    moonstream_breeding_hatching_data: List[Dict[str, Any]] = breeding_hatching_data[
+        "data"
+    ]
+
+    breeding_events: List[Dict[str, Any]] = [
+        event
+        for event in moonstream_breeding_hatching_data
+        if event["event_type"] == "breeding"
+    ]
+    hatching_events: List[Dict[str, Any]] = [
+        event
+        for event in moonstream_breeding_hatching_data
+        if event["event_type"] == "hatchingEggs"
+    ]
+    evolution_events: List[Dict[str, Any]] = evolution_data["data"]
+
+    default_player_points = {
+        "num_bred": 0,
+        "num_evolved": 0,
+        "num_evolved_with_at_least_1300_stat_points": 0,
+        "num_mythic_body_parts_hatched": 0,
+    }
+
+    player_points: Dict[str, Dict[str, int]] = {}
+    for event in breeding_events:
+        player = event["player_wallet"]
+        if player_points.get(player) is None:
+            player_points[player] = {**default_player_points}
+
+        player_points[player]["num_bred"] += 1
+
+    for event in hatching_events:
+        player = event["player_wallet"]
+        if player_points.get(player) is None:
+            player_points[player] = {**default_player_points}
+
+        token_id = str(event["token"])
+        mythic_body_parts_info = mythic_body_parts_index[token_id]
+        if metadata_index.get(token_id) is not None:
+            if (
+                metadata_index[token_id].get("lifecycle_stage") is not None
+                and metadata_index[token_id]["lifecycle_stage"] != 0
+            ):
+                player_points[player][
+                    "num_mythic_body_parts_hatched"
+                ] += mythic_body_parts_info["num_mythic_body_parts"]
+
+    for event in evolution_events:
+        player = event["player_wallet"]
+        if player_points.get(player) is None:
+            player_points[player] = {**default_player_points}
+
+        player_points[player]["num_evolved"] += 1
+        token_id = str(event["token"])
+        sum_stats = stats_index.get(token_id, {}).get("sum_stats", 0)
+        if sum_stats >= 1300:
+            player_points[player]["num_evolved_with_at_least_1300_stat_points"] += 1
+
+    scores: List[Dict[str, Any]] = []
+    for player, points in player_points.items():
+        total_score = (
+            (100 * points["num_evolved_with_at_least_1300_stat_points"])
+            + (50 * points["num_mythic_body_parts_hatched"])
+            + (25 * points["num_evolved"])
+            + (10 * points["num_bred"])
+        )
+        scores.append(
+            {
+                "address": player,
+                "score": total_score,
+                "points_data": points,
+            }
+        )
+
+    scores.sort(key=lambda item: item["score"], reverse=True)
+
+    print(json.dumps(scores))
+
+
 def handle_leaderboard_to_csv(args: argparse.Namespace) -> None:
     """
     Converts leaderboard JSON file into CSV.
@@ -745,6 +1060,9 @@ def generate_cli() -> argparse.ArgumentParser:
         required=False,
         help="Ending token ID to get DNA for. (If not set, just gets the DNA for the token with the --start token ID.)",
     )
+    dnas_parser.add_argument(
+        "--checkpoint", default=None, help="Checkpoint file (optional)"
+    )
 
     dnas_parser.set_defaults(func=handle_dnas)
 
@@ -762,6 +1080,9 @@ def generate_cli() -> argparse.ArgumentParser:
         required=False,
         help="Ending token ID to get DNA for. (If not set, just gets the DNA for the token with the --start token ID.)",
     )
+    metadata_parser.add_argument(
+        "--checkpoint", default=None, help="Checkpoint file (optional)"
+    )
 
     metadata_parser.set_defaults(func=handle_metadata)
 
@@ -772,8 +1093,24 @@ def generate_cli() -> argparse.ArgumentParser:
         required=True,
         help='Path to JSON file containing results of "autocorns biologist dnas".',
     )
+    mythic_body_parts_parser.add_argument(
+        "--checkpoint", default=None, help="Checkpoint file (optional)"
+    )
 
     mythic_body_parts_parser.set_defaults(func=handle_mythic_body_parts)
+
+    stats_parser = subparsers.add_parser("stats")
+    StatsFacet.add_default_arguments(stats_parser, False)
+    stats_parser.add_argument(
+        "--dnas",
+        required=True,
+        help='Path to JSON file containing results of "autocorns biologist dnas".',
+    )
+    stats_parser.add_argument(
+        "--checkpoint", default=None, help="Checkpoint file (optional)"
+    )
+
+    stats_parser.set_defaults(func=handle_stats)
 
     merge_parser = subparsers.add_parser("merge")
     merge_parser.add_argument(
@@ -807,6 +1144,33 @@ def generate_cli() -> argparse.ArgumentParser:
     )
 
     sob_parser.set_defaults(func=handle_sob)
+
+    fall_event_2022_parser = subparsers.add_parser("fall-event-2022")
+    fall_event_2022_parser.add_argument(
+        "--mythic-body-parts",
+        required=True,
+        help="Checkpoint file for mythic body parts",
+    )
+    fall_event_2022_parser.add_argument(
+        "--stats", required=True, help="Checkpoint file for Unicorn stats"
+    )
+    fall_event_2022_parser.add_argument(
+        "--metadata",
+        required=True,
+        help="Checkpoint file for Unicorn metadata",
+    )
+    fall_event_2022_parser.add_argument(
+        "--breeding-hatching-events",
+        required=True,
+        help="JSON file containing the results of the breeding_hatching_events Moonstream Query",
+    )
+    fall_event_2022_parser.add_argument(
+        "--evolution-events",
+        required=True,
+        help="JSON file containing the results of the evolution_events Moonstream Query",
+    )
+
+    fall_event_2022_parser.set_defaults(func=handle_fall_event_2022)
 
     moonstream_events_parser = subparsers.add_parser("moonstream-events")
     moonstream_events_parser.add_argument(
