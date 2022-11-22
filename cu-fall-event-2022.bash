@@ -24,7 +24,9 @@ fi
 
 set -e
 
-TOTAL_SUPPLY=$(autocorns biologist total-supply --network $BROWNIE_NETWORK --address $CU_ADDRESS)
+# TOTAL_SUPPLY=$(autocorns biologist total-supply --network $BROWNIE_NETWORK --address $CU_ADDRESS)
+
+TOTAL_SUPPLY=1000
 
 echo "Total supply: $TOTAL_SUPPLY"
 
@@ -33,26 +35,30 @@ time autocorns biologist dnas \
     --address $CU_ADDRESS \
     --start 1 \
     --end $TOTAL_SUPPLY \
-    --checkpoint "$DATA_DIR/dnas.json"
+    --checkpoint "$DATA_DIR/dnas.json" \
+    --leak-rate 0.05
 
 time autocorns biologist metadata \
     --network $BROWNIE_NETWORK \
     --address $CU_ADDRESS \
     --start 1 \
     --end $TOTAL_SUPPLY \
-    --checkpoint "$DATA_DIR/metadata.json"
+    --checkpoint "$DATA_DIR/metadata.json" \
+    --leak-rate 0.05
 
 time autocorns biologist mythic-body-parts \
     --network $BROWNIE_NETWORK \
     --address $CU_ADDRESS \
     --dnas "$DATA_DIR/dnas.json" \
-    --checkpoint "$DATA_DIR/mythic-body-parts.json"
+    --checkpoint "$DATA_DIR/mythic-body-parts.json" \
+    --leak-rate 0.05
 
 time autocorns biologist stats \
     --network $BROWNIE_NETWORK \
     --address $CU_ADDRESS \
     --dnas "$DATA_DIR/dnas.json" \
-    --checkpoint "$DATA_DIR/stats.json"
+    --checkpoint "$DATA_DIR/stats.json" \
+    --leak-rate 0.05
 
 time autocorns biologist moonstream-events \
     -n breeding_hatching_leaderboard_events \

@@ -3,6 +3,7 @@ import csv
 import datetime
 import json
 import os
+import random
 import sys
 import time
 from typing import Any, cast, Dict, List, Optional, Set, Tuple
@@ -52,6 +53,14 @@ def expire_stale_checkpoint_data(
         for item in checkpoint_data
         if item.get("block_number", 0) >= min_block_number
     ]
+
+
+def leak_checkpoint_data(
+    checkpoint_data: List[Dict[str, Any]],
+    leak_rate: float,
+) -> List[Dict[str, Any]]:
+    assert 0 <= leak_rate <= 1, "Leak rate must be between 0 and 1"
+    return [item for item in checkpoint_data if random.random() > leak_rate]
 
 
 def apply_checkpoint(
@@ -185,7 +194,7 @@ def unicorn_metadata(
 
     calls_progress_bar = tqdm(
         total=len(token_ids),
-        desc="Submitting requests for unicorn classes",
+        desc="Submitting requests for unicorn on-chain metadata",
     )
 
     multicaller = Multicall2.Multicall2(Multicall2_address)
@@ -398,18 +407,23 @@ def unicorn_stats(
 
 def handle_dnas(args: argparse.Namespace) -> None:
     network.connect(args.network)
-    fresh_checkpoint_data = []
+    final_checkpoint_data = []
     if args.checkpoint:
         block_number = len(chain)
         checkpoint_data = load_checkpoint_data(args.checkpoint)
         fresh_checkpoint_data = expire_stale_checkpoint_data(
             checkpoint_data, block_number - BLOCK_STALENESS_THRESHOLD
         )
+        final_checkpoint_data = fresh_checkpoint_data
+        if args.leak_rate is not None:
+            final_checkpoint_data = leak_checkpoint_data(
+                fresh_checkpoint_data, args.leak_rate
+            )
     if args.end is None:
         args.end = args.start
     assert args.start <= args.end, "Starting token ID must not exceed ending token ID"
     all_token_ids = range(args.start, args.end + 1)
-    token_ids = apply_checkpoint(all_token_ids, fresh_checkpoint_data, "token_id")
+    token_ids = apply_checkpoint(all_token_ids, final_checkpoint_data, "token_id")
     results, errors = unicorn_dnas(
         args.address,
         token_ids,
@@ -418,7 +432,7 @@ def handle_dnas(args: argparse.Namespace) -> None:
 
     if args.checkpoint:
         with open(args.checkpoint, "w") as ofp:
-            for result in results + fresh_checkpoint_data:
+            for result in results + final_checkpoint_data:
                 print(json.dumps(result), file=ofp)
     else:
         for result in results:
@@ -430,18 +444,24 @@ def handle_dnas(args: argparse.Namespace) -> None:
 
 def handle_metadata(args: argparse.Namespace) -> None:
     network.connect(args.network)
-    fresh_checkpoint_data = []
+    final_checkpoint_data = []
     if args.checkpoint:
         block_number = len(chain)
         checkpoint_data = load_checkpoint_data(args.checkpoint)
         fresh_checkpoint_data = expire_stale_checkpoint_data(
             checkpoint_data, block_number - BLOCK_STALENESS_THRESHOLD
         )
+        final_checkpoint_data = fresh_checkpoint_data
+        if args.leak_rate is not None:
+            final_checkpoint_data = leak_checkpoint_data(
+                fresh_checkpoint_data, args.leak_rate
+            )
+
     if args.end is None:
         args.end = args.start
     assert args.start <= args.end, "Starting token ID must not exceed ending token ID"
     all_token_ids = range(args.start, args.end + 1)
-    token_ids = apply_checkpoint(all_token_ids, fresh_checkpoint_data, "token_id")
+    token_ids = apply_checkpoint(all_token_ids, final_checkpoint_data, "token_id")
     results, errors = unicorn_metadata(
         args.address,
         token_ids,
@@ -450,7 +470,7 @@ def handle_metadata(args: argparse.Namespace) -> None:
 
     if args.checkpoint:
         with open(args.checkpoint, "w") as ofp:
-            for result in results + fresh_checkpoint_data:
+            for result in results + final_checkpoint_data:
                 print(json.dumps(result), file=ofp)
     else:
         for result in results:
@@ -462,20 +482,25 @@ def handle_metadata(args: argparse.Namespace) -> None:
 
 def handle_mythic_body_parts(args: argparse.Namespace) -> None:
     network.connect(args.network)
-    fresh_checkpoint_data = []
+    final_checkpoint_data = []
     if args.checkpoint:
         block_number = len(chain)
         checkpoint_data = load_checkpoint_data(args.checkpoint)
         fresh_checkpoint_data = expire_stale_checkpoint_data(
             checkpoint_data, block_number - BLOCK_STALENESS_THRESHOLD
         )
+        final_checkpoint_data = fresh_checkpoint_data
+        if args.leak_rate is not None:
+            final_checkpoint_data = leak_checkpoint_data(
+                fresh_checkpoint_data, args.leak_rate
+            )
 
     all_dnas: List[Dict[str, Any]] = []
     with open(args.dnas, "r") as ifp:
         for line in ifp:
             all_dnas.append(json.loads(line.strip()))
 
-    dnas = apply_checkpoint(all_dnas, fresh_checkpoint_data, "token_id", "token_id")
+    dnas = apply_checkpoint(all_dnas, final_checkpoint_data, "token_id", "token_id")
 
     results, errors = unicorn_mythic_body_parts(
         args.address,
@@ -485,7 +510,7 @@ def handle_mythic_body_parts(args: argparse.Namespace) -> None:
 
     if args.checkpoint:
         with open(args.checkpoint, "w") as ofp:
-            for result in results + fresh_checkpoint_data:
+            for result in results + final_checkpoint_data:
                 print(json.dumps(result), file=ofp)
     else:
         for result in results:
@@ -498,20 +523,25 @@ def handle_mythic_body_parts(args: argparse.Namespace) -> None:
 
 def handle_stats(args: argparse.Namespace) -> None:
     network.connect(args.network)
-    fresh_checkpoint_data = []
+    final_checkpoint_data = []
     if args.checkpoint:
         block_number = len(chain)
         checkpoint_data = load_checkpoint_data(args.checkpoint)
         fresh_checkpoint_data = expire_stale_checkpoint_data(
             checkpoint_data, block_number - BLOCK_STALENESS_THRESHOLD
         )
+        final_checkpoint_data = fresh_checkpoint_data
+        if args.leak_rate is not None:
+            final_checkpoint_data = leak_checkpoint_data(
+                fresh_checkpoint_data, args.leak_rate
+            )
 
     all_dnas: List[Dict[str, Any]] = []
     with open(args.dnas, "r") as ifp:
         for line in ifp:
             all_dnas.append(json.loads(line.strip()))
 
-    dnas = apply_checkpoint(all_dnas, fresh_checkpoint_data, "token_id", "token_id")
+    dnas = apply_checkpoint(all_dnas, final_checkpoint_data, "token_id", "token_id")
 
     results, errors = unicorn_stats(
         args.address,
@@ -521,7 +551,7 @@ def handle_stats(args: argparse.Namespace) -> None:
 
     if args.checkpoint:
         with open(args.checkpoint, "w") as ofp:
-            for result in results + fresh_checkpoint_data:
+            for result in results + final_checkpoint_data:
                 print(json.dumps(result), file=ofp)
     else:
         for result in results:
@@ -1063,6 +1093,13 @@ def generate_cli() -> argparse.ArgumentParser:
     dnas_parser.add_argument(
         "--checkpoint", default=None, help="Checkpoint file (optional)"
     )
+    dnas_parser.add_argument(
+        "--leak-rate",
+        type=float,
+        required=False,
+        default=None,
+        help="Rate at which data should leak out of checkpoint",
+    )
 
     dnas_parser.set_defaults(func=handle_dnas)
 
@@ -1083,6 +1120,13 @@ def generate_cli() -> argparse.ArgumentParser:
     metadata_parser.add_argument(
         "--checkpoint", default=None, help="Checkpoint file (optional)"
     )
+    metadata_parser.add_argument(
+        "--leak-rate",
+        type=float,
+        required=False,
+        default=None,
+        help="Rate at which data should leak out of checkpoint",
+    )
 
     metadata_parser.set_defaults(func=handle_metadata)
 
@@ -1096,6 +1140,13 @@ def generate_cli() -> argparse.ArgumentParser:
     mythic_body_parts_parser.add_argument(
         "--checkpoint", default=None, help="Checkpoint file (optional)"
     )
+    mythic_body_parts_parser.add_argument(
+        "--leak-rate",
+        type=float,
+        required=False,
+        default=None,
+        help="Rate at which data should leak out of checkpoint",
+    )
 
     mythic_body_parts_parser.set_defaults(func=handle_mythic_body_parts)
 
@@ -1108,6 +1159,13 @@ def generate_cli() -> argparse.ArgumentParser:
     )
     stats_parser.add_argument(
         "--checkpoint", default=None, help="Checkpoint file (optional)"
+    )
+    stats_parser.add_argument(
+        "--leak-rate",
+        type=float,
+        required=False,
+        default=None,
+        help="Rate at which data should leak out of checkpoint",
     )
 
     stats_parser.set_defaults(func=handle_stats)
