@@ -24,9 +24,7 @@ fi
 
 set -e
 
-# TOTAL_SUPPLY=$(autocorns biologist total-supply --network $BROWNIE_NETWORK --address $CU_ADDRESS)
-
-TOTAL_SUPPLY=1000
+TOTAL_SUPPLY=$(autocorns biologist total-supply --network $BROWNIE_NETWORK --address $CU_ADDRESS)
 
 echo "Total supply: $TOTAL_SUPPLY"
 
