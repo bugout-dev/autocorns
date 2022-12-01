@@ -100,12 +100,12 @@ throwing_shade_session_points AS (
         session_id
 )
 SELECT
-    token_id,
-    sum(session_score) AS total_score,
+    token_id as address,
+    sum(session_score) AS score,
     json_object_agg(
         'session_' || session_id :: text,
         session_score
-    ) as session_scores
+    ) as points_data
 FROM
     throwing_shade_session_points
 GROUP BY

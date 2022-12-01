@@ -1,11 +1,23 @@
 import argparse
+import logging
 import os
 from typing import Any, Dict
+import uuid
 
-import json
 import requests
 
 from .moonstream import get_results_for_moonstream_query
+
+logging.basicConfig()
+logger = logging.getLogger("autocorns.judge")
+log_level = logging.WARN
+if os.environ.get("AUTOCORNS_DEBUG") is not None:
+    log_level = logging.DEBUG
+
+logger.setLevel(log_level)
+
+if log_level == logging.DEBUG:
+    logger.debug(f"DEBUG mode")
 
 
 def handle_throwing_shade(args: argparse.Namespace) -> None:
@@ -13,6 +25,9 @@ def handle_throwing_shade(args: argparse.Namespace) -> None:
     if moonstream_access_token is None:
         raise ValueError("Please set the MOONSTREAM_ACCESS_TOKEN environment variable")
 
+    logger.debug(
+        f"Retrieving results for Moonstream Query: api={args.query_api}, query={args.query_name}"
+    )
     params: Dict[str, Any] = {}
     query_results = get_results_for_moonstream_query(
         moonstream_access_token,
@@ -24,9 +39,20 @@ def handle_throwing_shade(args: argparse.Namespace) -> None:
     )
 
     leaderboard = query_results.get("data", [])
+    engine_api = args.engine_api.rstrip("/")
+    leaderboard_api = f"{engine_api}/leaderboard/{str(args.leaderboard_id)}/scores"
+    headers = {
+        "Authorization": f"Bearer {moonstream_access_token}",
+        "Content-Type": "application/json",
+    }
+    query_params = {"normalize_addresses": "false"}
 
-    with open("temp.json", "w") as ofp:
-        json.dump(leaderboard, ofp, indent=4)
+    logger.debug(f"Pushing leaderboard: {leaderboard_api}")
+    response = requests.put(
+        leaderboard_api, headers=headers, json=leaderboard, params=query_params
+    )
+    response.raise_for_status()
+    logger.debug("Done!")
 
 
 def generate_cli() -> argparse.ArgumentParser:
@@ -56,6 +82,12 @@ def generate_cli() -> argparse.ArgumentParser:
         "--engine-api",
         default="https://engineapi.moonstream.to",
         help="Moonstream Engine API URL. Access token expected to be set as MOONSTREAM_ACCESS_TOKEN environment variable.",
+    )
+    shadowcorns_throwing_shade_parser.add_argument(
+        "--leaderboard-id",
+        type=uuid.UUID,
+        required=True,
+        help="Leaderboard ID on Engine API",
     )
     shadowcorns_throwing_shade_parser.add_argument(
         "--max-retries",
