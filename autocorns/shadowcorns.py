@@ -2,8 +2,9 @@ import argparse
 import base64
 import enum
 import json
+import sys
 import time
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 from brownie import network
 from tqdm import tqdm
@@ -57,12 +58,30 @@ def handle_metadata(args: argparse.Namespace) -> None:
 
 
 def handle_crawl(args: argparse.Namespace) -> None:
-    network.connect(args.network)
     checkpoint_data = []
     if args.checkpoint:
         checkpoint_data = load_checkpoint_data(args.checkpoint)
 
+    network.connect(args.network)
     shadowcorns = ERC721WithDiamondStorage(args.address)
+    results, errors = crawl(shadowcorns, checkpoint_data)
+    if args.checkpoint:
+        with open(args.checkpoint, "w") as ofp:
+            for result in results + checkpoint_data:
+                print(json.dumps(result), file=ofp)
+    else:
+        for result in results:
+            print(json.dumps(result))
+
+    if errors:
+        print("Errors:", file=sys.stderr)
+        for error in errors:
+            print(json.dumps(error), file=sys.stderr)
+
+
+def crawl(
+    shadowcorns: ERC721WithDiamondStorage, checkpoint_data: List[Dict[str, Any]]
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     current_supply = shadowcorns.total_supply()
 
     existing_token_ids = [item["token_id"] for item in checkpoint_data]
@@ -95,7 +114,7 @@ def handle_crawl(args: argparse.Namespace) -> None:
                 make_multicall_result = make_multicall(
                     multicall_method,
                     shadowcorns.contract.tokenURI,
-                    args.address,
+                    shadowcorns.address,
                     tokens_ids_chunk,
                 )
                 token_uris.extend(make_multicall_result)
@@ -114,16 +133,10 @@ def handle_crawl(args: argparse.Namespace) -> None:
             }
             results.append(result)
         except Exception as e:
-            error = {"token_id": token_id, "uri": uri}
+            error = {"token_id": token_id, "uri": uri, "error": str(e)}
             errors.append(error)
 
-    if args.checkpoint:
-        with open(args.checkpoint, "w") as ofp:
-            for result in results + checkpoint_data:
-                print(json.dumps(result), file=ofp)
-    else:
-        for result in results:
-            print(json.dumps(result))
+    return results, errors
 
 
 def generate_cli() -> argparse.ArgumentParser:
