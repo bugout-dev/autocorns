@@ -1,6 +1,6 @@
 import argparse
 
-from . import warden, biologist, crawl_reports
+from . import warden, biologist, crawl_reports, judge, shadowcorns
 
 
 def main():
@@ -18,6 +18,12 @@ def main():
 
     crawler_parser = crawl_reports.generate_cli()
     subparsers.add_parser("dna-reports", parents=[crawler_parser], add_help=False)
+
+    judge_parser = judge.generate_cli()
+    subparsers.add_parser("judge", parents=[judge_parser], add_help=False)
+
+    shadowcorns_parser = shadowcorns.generate_cli()
+    subparsers.add_parser("shadowcorns", parents=[shadowcorns_parser], add_help=False)
 
     args = parser.parse_args()
     args.func(args)

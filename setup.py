@@ -6,9 +6,9 @@ with open("README.md") as ifp:
 
 setup(
     name="autocorns",
-    version="0.0.9",
+    version="0.1.0",
     packages=find_packages(),
-    package_data={"autocorns": ["build/contracts/*.json"]},
+    package_data={"autocorns": ["build/contracts/*.json", "autocorns/*.sql"]},
     include_package_data=True,
     install_requires=["eth-brownie", "requests", "tqdm", "web3"],
     extras_require={
@@ -21,9 +21,9 @@ setup(
     description="A team of Crypto Unicorn bots",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    author="zomglings",
-    author_email="nkashy1@gmail.com",
-    url="https://github.com/zomglings/autocorns",
+    author="Moonstream DAO",
+    author_email="engineering@moonstream.to",
+    url="https://github.com/bugout-dev/autocorns",
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Programming Language :: Python",
