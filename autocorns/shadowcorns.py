@@ -39,12 +39,18 @@ def parse_shadowcorn_metadata(encoded_metadata: str) -> Dict[str, Any]:
     return metadata
 
 
-def rarity(shadowcorn_metadata: Dict[str, Any]) -> Rarity:
-    attributes = shadowcorn_metadata.get("attributes", [])
+def get_rarity(shadowcorn_metadata: Dict[str, Any]) -> Rarity:
+    attributes = shadowcorn_metadata.get("metadata", {}).get("attributes", [])
     rarity_value = Rarity.unknown
     for attribute in attributes:
         if attribute.get("trait_type", "").lower() == "rarity":
-            rarity_value = Rarity(attribute["value"].lower())
+            value = attribute["value"].lower()
+            if value == "common":
+                rarity_value = Rarity.common
+            elif value == "rare":
+                rarity_value = Rarity.rare
+            elif value == "mythic":
+                rarity_value = Rarity.mythic
 
     return rarity_value
 

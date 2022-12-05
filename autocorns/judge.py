@@ -1,12 +1,17 @@
 import argparse
+import json
 import logging
 import os
 from typing import Any, Dict
 import uuid
 
+from brownie import network
 import requests
 
+from .biologist import load_checkpoint_data
 from .moonstream import get_results_for_moonstream_query
+from .ERC721WithDiamondStorage import add_default_arguments, ERC721WithDiamondStorage
+from .shadowcorns import crawl, get_rarity, Rarity
 
 logging.basicConfig()
 logger = logging.getLogger("autocorns.judge")
@@ -46,6 +51,37 @@ def handle_throwing_shade(args: argparse.Namespace) -> None:
         "Content-Type": "application/json",
     }
     query_params = {"normalize_addresses": "false"}
+
+    logger.debug(
+        f"Getting Shadowcorn rarity information for multipliers. Using metadata file: {args.metadata}."
+    )
+    multipliers: Dict[str, float] = {}
+    network.connect(args.network)
+    shadowcorns = ERC721WithDiamondStorage(args.address)
+    checkpoint_data = load_checkpoint_data(args.metadata)
+    new_metadata, _ = crawl(shadowcorns, checkpoint_data)
+    with open("temp.json", "w") as ofp:
+        for item in new_metadata + checkpoint_data:
+            rarity = get_rarity(item)
+            multiplier = 1.0
+            if rarity == Rarity.rare:
+                multiplier = 1.2
+            elif rarity == Rarity.mythic:
+                multiplier = 1.5
+            multipliers[str(item["token_id"])] = multiplier
+            item["rarity"] = rarity.value
+            item["multiplier"] = multiplier
+            print(json.dumps(item), file=ofp)
+
+    with open(args.metadata, "w") as ofp:
+        for result in new_metadata + checkpoint_data:
+            print(json.dumps(result), file=ofp)
+
+    logger.debug("Applying multipliers")
+    for row in leaderboard:
+        row_multiplier = multipliers[row["address"]]
+        row["points_data"]["rarity_multiplier"] = str(row_multiplier)
+        row["score"] = str(int(row_multiplier * float(row["score"])))
 
     logger.debug(f"Pushing leaderboard: {leaderboard_api}")
     response = requests.put(
@@ -100,6 +136,12 @@ def generate_cli() -> argparse.ArgumentParser:
         type=float,
         default=30.0,
         help="Number of seconds to wait between attempts to get results from Moonstream Query API",
+    )
+    add_default_arguments(shadowcorns_throwing_shade_parser, False)
+    shadowcorns_throwing_shade_parser.add_argument(
+        "--metadata",
+        required=True,
+        help='File containing Shadowcorn metadata (in same format as "autocorns shadowcorns crawl")',
     )
     shadowcorns_throwing_shade_parser.set_defaults(func=handle_throwing_shade)
 
