@@ -2,7 +2,6 @@ import argparse
 
 from . import warden, biologist, crawl_reports, judge, shadowcorns
 
-
 def main():
     parser = argparse.ArgumentParser(
         description="autocorns: Crypto Unicorns automation"
