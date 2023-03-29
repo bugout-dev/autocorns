@@ -1357,7 +1357,7 @@ def generate_cli() -> argparse.ArgumentParser:
 
     fall_event_2022_parser.set_defaults(func=handle_fall_event_2022)
 
-    spring_event_2023_parser = subparsers.add_parser("fall-event-2022")
+    spring_event_2023_parser = subparsers.add_parser("spring-event-2023")
     spring_event_2023_parser.add_argument(
         "--mythic-body-parts",
         required=True,
