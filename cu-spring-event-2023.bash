@@ -23,7 +23,7 @@ then
 fi
 
 LEADERBOARD_COMMAND=""
-if [ -n "$LEADERBOARD_ID"]
+if [ -n "$LEADERBOARD_ID" ]
 then
     LEADERBOARD_COMMAND="--leaderboard-id $LEADERBOARD_ID"
 fi
