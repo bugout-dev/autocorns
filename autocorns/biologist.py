@@ -1158,19 +1158,12 @@ def handle_spring_event_2023(args: argparse.Namespace) -> None:
                 "MOONSTREAM_LEADERBOARDS_ACCESS_TOKEN not set. If you pass a --leaderboard-id, you need to set MOONSTREAM_LEADERBOARDS_ACCESS_TOKEN."
             )
 
-        BATCH_SIZE = 5000
-
-        current_index = 0
-
-        while current_index < len(scores):
-            current_batch = scores[current_index : current_index + BATCH_SIZE]
-            response = requests.put(
-                f"https://engineapi.moonstream.to/leaderboard/{str(args.leaderboard_id)}/scores",
-                headers={"Authorization": f"Bearer {leaderboards_access_token}"},
-                json=current_batch,
-            )
-            response.raise_for_status()
-            current_index += BATCH_SIZE
+        response = requests.put(
+            f"https://engineapi.moonstream.to/leaderboard/{str(args.leaderboard_id)}/scores",
+            headers={"Authorization": f"Bearer {leaderboards_access_token}"},
+            json=scores,
+        )
+        response.raise_for_status()
 
     print(json.dumps(scores))
 
