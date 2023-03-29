@@ -1164,11 +1164,12 @@ def handle_spring_event_2023(args: argparse.Namespace) -> None:
 
         while current_index < len(scores):
             current_batch = scores[current_index : current_index + BATCH_SIZE]
-            requests.put(
+            response = requests.put(
                 f"https://engineapi.moonstream.to/leaderboard/{str(args.leaderboard_id)}/scores",
                 headers={"Authorization": f"Bearer {leaderboards_access_token}"},
                 json=current_batch,
             )
+            response.raise_for_status()
             current_index += BATCH_SIZE
 
     print(json.dumps(scores))
