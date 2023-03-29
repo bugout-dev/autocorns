@@ -86,7 +86,7 @@ time autocorns biologist spring-event-2023  \
     --breeding-hatching-events "$DATA_DIR/breeding_hatching_leaderboard_events.json" \
     --evolution-events "$DATA_DIR/evolution_leaderboard_events.json" \
     --metadata "$DATA_DIR/metadata.json" \
-    "$LEADERBOARD_COMMAND" \
+    $LEADERBOARD_COMMAND \
     >"$DATA_DIR/leaderboard.json"
 
 echo "Done!"
