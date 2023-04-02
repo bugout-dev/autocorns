@@ -66,7 +66,7 @@ time autocorns biologist stats \
 
 time autocorns biologist moonstream-events \
     -n breeding_hatching_leaderboard_events \
-    --start 1680480000 \
+    --start 1680307200 \
     --end 1688169600 \
     --interval 15 \
     --max-retries 20 \
@@ -74,7 +74,7 @@ time autocorns biologist moonstream-events \
 
 time autocorns biologist moonstream-events \
     -n evolution_leaderboard_events \
-    --start 1680480000 \
+    --start 1680307200 \
     --end 1688169600 \
     --interval 15 \
     --max-retries 20 \
