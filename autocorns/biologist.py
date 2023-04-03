@@ -1115,6 +1115,7 @@ def handle_spring_event_2023(args: argparse.Namespace) -> None:
             if (
                 metadata_index[token_id].get("lifecycle_stage") is not None
                 and metadata_index[token_id]["lifecycle_stage"] != 0
+                and mythic_body_parts_info["num_mythic_body_parts"] != 6
             ):
                 player_points[player][
                     "num_mythic_body_parts_hatched"
