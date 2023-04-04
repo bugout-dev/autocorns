@@ -7,6 +7,7 @@ import random
 import sys
 import time
 from typing import Any, cast, Dict, List, Optional, Set, Tuple
+import uuid
 
 
 from brownie import network, web3
@@ -1047,6 +1048,127 @@ def handle_fall_event_2022(args: argparse.Namespace) -> None:
     print(json.dumps(scores))
 
 
+def handle_spring_event_2023(args: argparse.Namespace) -> None:
+    mythic_body_parts_index: Dict[str, Dict[str, Any]] = {}
+    with open(args.mythic_body_parts, "r") as ifp:
+        for line in ifp:
+            item = json.loads(line.strip())
+            mythic_body_parts_index[str(item["token_id"])] = item
+
+    stats_index: Dict[str, Dict[str, Any]] = {}
+    with open(args.stats, "r") as ifp:
+        for line in ifp:
+            item = json.loads(line.strip())
+            stats_index[str(item["token_id"])] = item
+
+    metadata_index: Dict[str, Dict[str, Any]] = {}
+    with open(args.metadata, "r") as ifp:
+        for line in ifp:
+            item = json.loads(line.strip())
+            metadata_index[str(item["token_id"])] = item
+
+    with open(args.breeding_hatching_events, "r") as ifp:
+        breeding_hatching_data = json.load(ifp)
+
+    with open(args.evolution_events, "r") as ifp:
+        evolution_data = json.load(ifp)
+
+    moonstream_breeding_hatching_data: List[Dict[str, Any]] = breeding_hatching_data[
+        "data"
+    ]
+
+    breeding_events: List[Dict[str, Any]] = [
+        event
+        for event in moonstream_breeding_hatching_data
+        if event["event_type"] == "breeding"
+    ]
+    hatching_events: List[Dict[str, Any]] = [
+        event
+        for event in moonstream_breeding_hatching_data
+        if event["event_type"] == "hatchingEggs"
+    ]
+    evolution_events: List[Dict[str, Any]] = evolution_data["data"]
+
+    default_player_points = {
+        "num_bred": 0,
+        "num_evolved": 0,
+        "num_evolved_with_at_least_1350_stat_points": 0,
+        "num_mythic_body_parts_hatched": 0,
+    }
+
+    player_points: Dict[str, Dict[str, int]] = {}
+    for event in breeding_events:
+        player = event["player_wallet"]
+        if player_points.get(player) is None:
+            player_points[player] = {**default_player_points}
+
+        player_points[player]["num_bred"] += 1
+
+    for event in hatching_events:
+        player = event["player_wallet"]
+        if player_points.get(player) is None:
+            player_points[player] = {**default_player_points}
+
+        token_id = str(event["token"])
+        mythic_body_parts_info = mythic_body_parts_index[token_id]
+        if metadata_index.get(token_id) is not None:
+            if (
+                metadata_index[token_id].get("lifecycle_stage") is not None
+                and metadata_index[token_id]["lifecycle_stage"] != 0
+                and mythic_body_parts_info["num_mythic_body_parts"] != 6
+            ):
+                player_points[player][
+                    "num_mythic_body_parts_hatched"
+                ] += mythic_body_parts_info["num_mythic_body_parts"]
+
+    for event in evolution_events:
+        player = event["player_wallet"]
+        if player_points.get(player) is None:
+            player_points[player] = {**default_player_points}
+
+        player_points[player]["num_evolved"] += 1
+        token_id = str(event["token"])
+        sum_stats = stats_index.get(token_id, {}).get("sum_stats", 0)
+        if sum_stats >= 1350:
+            player_points[player]["num_evolved_with_at_least_1350_stat_points"] += 1
+
+    scores: List[Dict[str, Any]] = []
+    for player, points in player_points.items():
+        total_score = (
+            (100 * points["num_evolved_with_at_least_1350_stat_points"])
+            + (50 * points["num_mythic_body_parts_hatched"])
+            + (25 * points["num_evolved"])
+            + (10 * points["num_bred"])
+        )
+        scores.append(
+            {
+                "address": player,
+                "score": total_score,
+                "points_data": points,
+            }
+        )
+
+    scores.sort(key=lambda item: item["score"], reverse=True)
+
+    if args.leaderboard_id is not None:
+        leaderboards_access_token = os.environ.get(
+            "MOONSTREAM_LEADERBOARDS_ACCESS_TOKEN"
+        )
+        if leaderboards_access_token is None:
+            raise ValueError(
+                "MOONSTREAM_LEADERBOARDS_ACCESS_TOKEN not set. If you pass a --leaderboard-id, you need to set MOONSTREAM_LEADERBOARDS_ACCESS_TOKEN."
+            )
+
+        response = requests.put(
+            f"https://engineapi.moonstream.to/leaderboard/{str(args.leaderboard_id)}/scores",
+            headers={"Authorization": f"Bearer {leaderboards_access_token}"},
+            json=scores,
+        )
+        response.raise_for_status()
+
+    print(json.dumps(scores))
+
+
 def handle_leaderboard_to_csv(args: argparse.Namespace) -> None:
     """
     Converts leaderboard JSON file into CSV.
@@ -1229,6 +1351,40 @@ def generate_cli() -> argparse.ArgumentParser:
     )
 
     fall_event_2022_parser.set_defaults(func=handle_fall_event_2022)
+
+    spring_event_2023_parser = subparsers.add_parser("spring-event-2023")
+    spring_event_2023_parser.add_argument(
+        "--mythic-body-parts",
+        required=True,
+        help="Checkpoint file for mythic body parts",
+    )
+    spring_event_2023_parser.add_argument(
+        "--stats", required=True, help="Checkpoint file for Unicorn stats"
+    )
+    spring_event_2023_parser.add_argument(
+        "--metadata",
+        required=True,
+        help="Checkpoint file for Unicorn metadata",
+    )
+    spring_event_2023_parser.add_argument(
+        "--breeding-hatching-events",
+        required=True,
+        help="JSON file containing the results of the breeding_hatching_events Moonstream Query",
+    )
+    spring_event_2023_parser.add_argument(
+        "--evolution-events",
+        required=True,
+        help="JSON file containing the results of the evolution_events Moonstream Query",
+    )
+    spring_event_2023_parser.add_argument(
+        "--leaderboard-id",
+        required=False,
+        default=None,
+        type=uuid.UUID,
+        help="If a Leaderboard ID is provided, the biologist will push the scores to that Moonstream leaderboard. It expects an API access token stored under MOONSTREAM_LEADERBOARDS_ACCESS_TOKEN.",
+    )
+
+    spring_event_2023_parser.set_defaults(func=handle_spring_event_2023)
 
     moonstream_events_parser = subparsers.add_parser("moonstream-events")
     moonstream_events_parser.add_argument(
