@@ -1110,8 +1110,11 @@ def handle_spring_event_2023(args: argparse.Namespace) -> None:
             player_points[player] = {**default_player_points}
 
         token_id = str(event["token"])
-        mythic_body_parts_info = mythic_body_parts_index[token_id]
-        if metadata_index.get(token_id) is not None:
+        mythic_body_parts_info = mythic_body_parts_index.get(token_id)
+        if (
+            mythic_body_parts_info is not None
+            and metadata_index.get(token_id) is not None
+        ):
             if (
                 metadata_index[token_id].get("lifecycle_stage") is not None
                 and metadata_index[token_id]["lifecycle_stage"] != 0
