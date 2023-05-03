@@ -1049,6 +1049,9 @@ def handle_fall_event_2022(args: argparse.Namespace) -> None:
 
 
 def handle_spring_event_2023(args: argparse.Namespace) -> None:
+    # Refer to: https://github.com/bugout-dev/autocorns/issues/23
+    milestone_1_cutoff = 1682899200
+    milestone_2_cutoff = 1685577600
     mythic_body_parts_index: Dict[str, Dict[str, Any]] = {}
     with open(args.mythic_body_parts, "r") as ifp:
         for line in ifp:
@@ -1094,17 +1097,45 @@ def handle_spring_event_2023(args: argparse.Namespace) -> None:
         "num_evolved": 0,
         "num_evolved_with_at_least_1350_stat_points": 0,
         "num_mythic_body_parts_hatched": 0,
+        "num_bred_milestone_1": 0,
+        "num_evolved_milestone_1": 0,
+        "num_evolved_with_at_least_1350_stat_points_milestone_1": 0,
+        "num_mythic_body_parts_hatched_milestone_1": 0,
+        "num_bred_milestone_2": 0,
+        "num_evolved_milestone_2": 0,
+        "num_evolved_with_at_least_1350_stat_points_milestone_2": 0,
+        "num_mythic_body_parts_hatched_milestone_2": 0,
+        "num_bred_milestone_3": 0,
+        "num_evolved_milestone_3": 0,
+        "num_evolved_with_at_least_1350_stat_points_milestone_3": 0,
+        "num_mythic_body_parts_hatched_milestone_3": 0,
+        "score_milestone_1": 0,
+        "score_milestone_2": 0,
+        "score_milestone_3": 0,
     }
 
     player_points: Dict[str, Dict[str, int]] = {}
     for event in breeding_events:
+        milestone = "milestone_3"
+        if event["block_timestamp"] < milestone_1_cutoff:
+            milestone = "milestone_1"
+        elif event["block_timestamp"] < milestone_2_cutoff:
+            milestone = "milestone_2"
+
         player = event["player_wallet"]
         if player_points.get(player) is None:
             player_points[player] = {**default_player_points}
 
         player_points[player]["num_bred"] += 1
+        player_points[player][f"num_bred_{milestone}"] += 1
 
     for event in hatching_events:
+        milestone = "milestone_3"
+        if event["block_timestamp"] < milestone_1_cutoff:
+            milestone = "milestone_1"
+        elif event["block_timestamp"] < milestone_2_cutoff:
+            milestone = "milestone_2"
+
         player = event["player_wallet"]
         if player_points.get(player) is None:
             player_points[player] = {**default_player_points}
@@ -1123,17 +1154,29 @@ def handle_spring_event_2023(args: argparse.Namespace) -> None:
                 player_points[player][
                     "num_mythic_body_parts_hatched"
                 ] += mythic_body_parts_info["num_mythic_body_parts"]
+                player_points[player][
+                    f"num_mythic_body_parts_hatched_{milestone}"
+                ] += mythic_body_parts_info["num_mythic_body_parts"]
 
     for event in evolution_events:
+        milestone = "milestone_3"
+        if event["block_timestamp"] < milestone_1_cutoff:
+            milestone = "milestone_1"
+        elif event["block_timestamp"] < milestone_2_cutoff:
+            milestone = "milestone_2"
         player = event["player_wallet"]
         if player_points.get(player) is None:
             player_points[player] = {**default_player_points}
 
         player_points[player]["num_evolved"] += 1
+        player_points[player][f"num_evolved_{milestone}"] += 1
         token_id = str(event["token"])
         sum_stats = stats_index.get(token_id, {}).get("sum_stats", 0)
         if sum_stats >= 1350:
             player_points[player]["num_evolved_with_at_least_1350_stat_points"] += 1
+            player_points[player][
+                f"num_evolved_with_at_least_1350_stat_points_{milestone}"
+            ] += 1
 
     scores: List[Dict[str, Any]] = []
     for player, points in player_points.items():
@@ -1142,6 +1185,24 @@ def handle_spring_event_2023(args: argparse.Namespace) -> None:
             + (50 * points["num_mythic_body_parts_hatched"])
             + (25 * points["num_evolved"])
             + (10 * points["num_bred"])
+        )
+        points["score_milestone_1"] = (
+            (100 * points["num_evolved_with_at_least_1350_stat_points_milestone_1"])
+            + (50 * points["num_mythic_body_parts_hatched_milestone_1"])
+            + (25 * points["num_evolved_milestone_1"])
+            + (10 * points["num_bred_milestone_1"])
+        )
+        points["score_milestone_2"] = (
+            (100 * points["num_evolved_with_at_least_1350_stat_points_milestone_2"])
+            + (50 * points["num_mythic_body_parts_hatched_milestone_2"])
+            + (25 * points["num_evolved_milestone_2"])
+            + (10 * points["num_bred_milestone_2"])
+        )
+        points["score_milestone_3"] = (
+            (100 * points["num_evolved_with_at_least_1350_stat_points_milestone_3"])
+            + (50 * points["num_mythic_body_parts_hatched_milestone_3"])
+            + (25 * points["num_evolved_milestone_3"])
+            + (10 * points["num_bred_milestone_3"])
         )
         scores.append(
             {
